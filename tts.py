@@ -3,7 +3,7 @@ import sys
 
 from gtts import gTTS
 
-from utils import make_dir
+from utils import make_dir, preprocess_text, create_filename_from_text
 
 class TTS:
 
@@ -106,7 +106,9 @@ class Festival(TTS):
 def test():
     text = "hello world!"
     audio_dir = "data/audio/"
-    filename = "hello_world"
+
+    text = preprocess_text(text)
+    filename = create_filename_from_text(text)
 
     google = Google()
     google.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
