@@ -38,6 +38,7 @@ class Google(TTS):
         googleTTS.save(tempfile)
         os.system('ffmpeg -i ' + tempfile +
                   ' -acodec pcm_s16le -ac 1 -ar 16000 ' + wavfile + ' -y')
+        return os.path.relpath(wavfile, base_dir)
 
 
 class ResponsiveVoice(TTS):
@@ -61,6 +62,7 @@ class ResponsiveVoice(TTS):
         os.system('ffmpeg -i ' + tempfile +
                 ' -acodec pcm_s16le -ac 1 -ar 16000 ' + wavfile + ' -y')
 
+        return os.path.relpath(wavfile, base_dir)
 
 class Espeak(TTS):
 
@@ -81,6 +83,7 @@ class Espeak(TTS):
         os.system('ffmpeg -i ' + tempfile +
                 ' -acodec pcm_s16le -ac 1 -ar 16000 ' + wavfile + ' -y')
 
+        return os.path.relpath(wavfile, base_dir)
 
 class Festival(TTS):
 
@@ -96,6 +99,8 @@ class Festival(TTS):
         cmd = "festival -b \"(utt.save.wave (SayText \\\"" + \
             text + "\\\") \\\"" + wavfile + "\\\" 'riff)\""
         os.system(cmd)
+
+        return os.path.relpath(wavfile, base_dir)
 
 
 def test():
