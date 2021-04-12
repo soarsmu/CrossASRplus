@@ -20,12 +20,14 @@ from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter
 
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR]) :
+    def __init__(self, tts: TTS, asrs: [ASR], audio_dir: str) :
         self.tts = tts
         self.asrs = asrs
+        self.audio_dir = audio_dir
 
     def getTTS(self) :
         return self.tts
+
     def setTTS(self, tts: TTS) :
         self.tts = tts
 
@@ -35,9 +37,15 @@ class CrossASR:
     def addASR(self, asr: ASR) :
         for curr_asr in self.asrs :
             if asr.getName() == curr_asr.getName() :
-                # asr is on the list of asrs
+                # asr is already on the list of asrs
                 return
         self.asrs.append(asr)
+
+    def getAudioDir(self):
+        return self.audio_dir
+
+    def setAudioDir(self, audio_dir: str) :
+        self.audio_dir = audio_dir
     
     def removeASR(self, asr_name: str):
         for i, asr in enumerate(self.asrs) :
@@ -45,15 +53,18 @@ class CrossASR:
                 break
         del self.asrs[i]
 
-    """
-	Run CrossASR on a single text
-	Description: Given a sentence as input, the program will generate a test case. The program needs some parameters, i.e. a TTS and ASRs used
-	params:
-	return:
-	"""
-    # def processText(self, text: str) :
-
-    #     audio_path = self.getTTS().generateAudio()
+    def processText(self, text: str) :
+        """
+        Run CrossASR on a single text
+        Description: Given a sentence as input, the program will generate a test case. The program needs some parameters, i.e. a TTS and ASRs used
+        params:
+        return:
+        """
+        audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.getAudioDir(), filename="temp")
+        transcriptions = {}
+        for asr in self.asrs :
+            transcriptions[asr.getName()] = asr.recognizeAudio(audio_path=audio_path)
+        print(transcriptions)
 
     
     # """
@@ -69,10 +80,14 @@ def test():
 
     tts = Google()
     asrs = [DeepSpeech(), DeepSpeech2()]
+    audio_dir = "data/audio/"
 
-    crossasr = CrossASR(tts=tts, asrs=asrs)
+    crossasr = CrossASR(tts=tts, asrs=asrs, audio_dir=audio_dir)
     crossasr.setTTS(ResponsiveVoice())
     crossasr.addASR(Wav2Letter())
+
+    text = "hello world!"
+    crossasr.processText(text)
 
 
 
