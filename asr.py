@@ -14,6 +14,12 @@ class ASR:
     def __init__(self, name):
         self.name = name
 
+    def getName(self) :
+        return self.name
+
+    def setName(self, name:str):
+        self.name = name
+
     def recognizeAudio(audio_path: str) -> str:
         # abstract function need to be implemented by the child class
         raise NotImplementedError()
