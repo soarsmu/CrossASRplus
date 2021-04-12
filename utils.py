@@ -1,7 +1,7 @@
-import os
-import sys
-import re
-import string
+import os, sys
+import re, string
+import random
+import numpy as np
 from normalise import normalise, tokenize_basic
 
 
@@ -80,3 +80,7 @@ def preprocess_text(text):
 
 def create_filename_from_text(text): 
     return "_".join(text.split(" "))
+
+def set_seed(seed: int) :
+    random.seed(seed)
+    np.random.seed(seed)
