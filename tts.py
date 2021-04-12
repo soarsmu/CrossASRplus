@@ -10,6 +10,12 @@ class TTS:
     def __init__(self, name):
         self.name = name
 
+    def getName(self):
+        return self.name
+
+    def setName(self, name: str):
+        self.name = name
+
     def generateAudio(self, text:str, audiodir:str, filename:str):
         # abstract function need to be implemented by the child class
         raise NotImplementedError()
