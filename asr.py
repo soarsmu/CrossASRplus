@@ -13,6 +13,7 @@ wit_client = WitAPI(WIT_ACCESS_TOKEN)
 class ASR:
     def __init__(self, name):
         self.name = name
+        self.transcription = ""
 
     def getName(self) :
         return self.name
@@ -20,9 +21,22 @@ class ASR:
     def setName(self, name:str):
         self.name = name
 
-    def recognizeAudio(audio_path: str) -> str:
+    def getTranscription(self):
+        return self.transcription
+
+    def setTranscription(self, transcription: str):
+        self.transcription = transcription
+
+    def recognizeAudio(self, audio_path: str) -> str:
         # abstract function need to be implemented by the child class
         raise NotImplementedError()
+    
+    def saveTranscription(self, transcription_dir: str, filename: str):
+        transcription_dir = os.path.join(transcription_dir, self.getName())
+        make_dir(transcription_dir)
+        transcription_path = os.path.join(transcription_dir, filename + ".txt")
+        with open(transcription_path, "w+") as f :
+            f.write(self.getTranscription())
 
 
 class DeepSpeech(ASR):
@@ -37,6 +51,8 @@ class DeepSpeech(ASR):
 
         transcription = out.decode("utf-8")[:-1]
         # print("DeepSpeech transcription: %s" % transcription)
+        
+        self.setTranscription(transcription)
 
         return transcription
 
@@ -56,7 +72,7 @@ class DeepSpeech2(ASR):
         transcription = transcription[:-1]
 
         # print("DeepSpeech2 transcription: %s" % transcription)
-
+        self.setTranscription(transcription)
         return transcription
 
 
@@ -75,7 +91,7 @@ class Wav2Letter(ASR):
         transcription = self.concatWav2letterTranscription(out)
 
         # print(f"Wav2letter transcription: {transcription}")
-
+        self.setTranscription(transcription)
         return transcription
 
 
@@ -117,29 +133,37 @@ class Wit(ASR):
                 # print("Could not request results from Wit.ai service; {0}".format(e))
                 transcription = ""
         
+        self.setTranscription(transcription)
         # print(f"Wit transcription: {transcription}")
         return transcription
 
 
 def test():
-    text = "hello world!"
     audio_dir = "data/audio/"
+    transcription_dir = "data/transcription/"
+
     tts_name = "google"
     filename = "hello_world"
 
     audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
+    transcription_dir = os.path.join(transcription_dir, tts_name)
 
-    # ds = DeepSpeech()
-    # transcription = ds.recognizeAudio(audio_path=audio_path)
 
-    # ds2 = DeepSpeech2()
-    # transcription = ds2.recognizeAudio(audio_path=audio_path)
+    ds = DeepSpeech()
+    ds.recognizeAudio(audio_path=audio_path)
+    ds.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+
+    ds2 = DeepSpeech2()
+    transcription = ds2.recognizeAudio(audio_path=audio_path)
+    ds2.saveTranscription(transcription_dir=transcription_dir, filename=filename)
     
-    # wit = Wit()
-    # transcription = wit.recognizeAudio(audio_path=audio_path)
+    wit = Wit()
+    transcription = wit.recognizeAudio(audio_path=audio_path)
+    wit.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
     w2l = Wav2Letter()
-    transcription = w2l.recognizeAudio(audio_path=audio_path)
+    w2l.recognizeAudio(audio_path=audio_path)
+    w2l.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
 if __name__ == "__main__":
     test()
