@@ -36,7 +36,7 @@ class DeepSpeech(ASR):
         (out, err) = proc.communicate()
 
         transcription = out.decode("utf-8")[:-1]
-        print("DeepSpeech transcription: %s" % transcription)
+        # print("DeepSpeech transcription: %s" % transcription)
 
         return transcription
 
@@ -55,7 +55,7 @@ class DeepSpeech2(ASR):
         transcription = out.decode("utf-8").split("\n")[-2]
         transcription = transcription[:-1]
 
-        print("DeepSpeech2 transcription: %s" % transcription)
+        # print("DeepSpeech2 transcription: %s" % transcription)
 
         return transcription
 
@@ -74,7 +74,7 @@ class Wav2Letter(ASR):
 
         transcription = self.concatWav2letterTranscription(out)
 
-        print(f"Wav2letter transcription: {transcription}")
+        # print(f"Wav2letter transcription: {transcription}")
 
         return transcription
 
