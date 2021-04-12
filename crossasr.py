@@ -1,10 +1,14 @@
 import os
 import numpy as np
 
-from utils import preprocess_text, create_filename_from_text
+from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
+
+from utils import preprocess_text, create_filename_from_text, set_seed
 
 from tts import TTS, Google, ResponsiveVoice, Espeak, Festival
 from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter
+
+from jiwer import wer
 
 # class Classifier:
 # 	def __init__(name):
@@ -81,7 +85,36 @@ class CrossASR:
             asr.saveTranscription(
                 transcription_dir=transcription_dir, filename=filename)
             transcriptions[asr.getName()] = asr.getTranscription()
+        
         print(transcriptions)
+
+        # word error rate
+        wers = {} 
+        
+        is_determinable = False
+
+        for k, transcription in transcriptions.items() :
+            word_error_rate = wer(transcription, text)
+            wers[k] = word_error_rate
+            if word_error_rate == 0 :
+                is_determinable = True
+
+        cases = {}
+        if is_determinable :
+            for k in transcriptions.keys():
+                if wers[k] == 0 :
+                    cases[k] = SUCCESSFUL_TEST_CASE
+                else :
+                    cases[k] = FAILED_TEST_CASE
+        else :
+            for k in transcriptions.keys() :
+                cases[k] = UNDETERMINABLE_TEST_CASE
+
+        print(cases)
+
+
+
+
 
     
     # """
@@ -101,7 +134,8 @@ def test():
     transcription_dir = "data/transcription/"
 
     crossasr = CrossASR(tts=tts, asrs=asrs, audio_dir=audio_dir, transcription_dir=transcription_dir)
-    crossasr.setTTS(ResponsiveVoice())
+    # crossasr.setTTS(ResponsiveVoice())
+    crossasr.setTTS(Festival())
     crossasr.addASR(Wav2Letter())
 
     text = "hello world!"
@@ -110,4 +144,5 @@ def test():
 
 
 if __name__ == "__main__" :
+    set_seed(2021)
     test()
