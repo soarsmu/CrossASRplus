@@ -1,6 +1,8 @@
 import os
 import numpy as np
 
+from utils import preprocess_text, create_filename_from_text
+
 from tts import TTS, Google, ResponsiveVoice, Espeak, Festival
 from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter
 
@@ -20,10 +22,11 @@ from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter
 
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR], audio_dir: str) :
+    def __init__(self, tts: TTS, asrs: [ASR], audio_dir: str, transcription_dir: str) :
         self.tts = tts
         self.asrs = asrs
         self.audio_dir = audio_dir
+        self.transcription_dir = transcription_dir
 
     def getTTS(self) :
         return self.tts
@@ -47,6 +50,14 @@ class CrossASR:
     def setAudioDir(self, audio_dir: str) :
         self.audio_dir = audio_dir
     
+
+    def getTranscriptionDir(self):
+        return self.transcription_dir
+
+    def setTranscriptionDir(self, transcription_dir: str) :
+        self.transcription_dir = transcription_dir
+    
+
     def removeASR(self, asr_name: str):
         for i, asr in enumerate(self.asrs) :
             if asr_name == asr.getName() :
@@ -60,10 +71,16 @@ class CrossASR:
         params:
         return:
         """
-        audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.getAudioDir(), filename="temp")
+        text = preprocess_text(text)
+        filename = create_filename_from_text(text)
+        audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.getAudioDir(), filename=filename)
+        transcription_dir = os.path.join(self.getTranscriptionDir(), self.getTTS().getName())
         transcriptions = {}
         for asr in self.asrs :
-            transcriptions[asr.getName()] = asr.recognizeAudio(audio_path=audio_path)
+            asr.recognizeAudio(audio_path=audio_path)
+            asr.saveTranscription(
+                transcription_dir=transcription_dir, filename=filename)
+            transcriptions[asr.getName()] = asr.getTranscription()
         print(transcriptions)
 
     
@@ -81,8 +98,9 @@ def test():
     tts = Google()
     asrs = [DeepSpeech(), DeepSpeech2()]
     audio_dir = "data/audio/"
+    transcription_dir = "data/transcription/"
 
-    crossasr = CrossASR(tts=tts, asrs=asrs, audio_dir=audio_dir)
+    crossasr = CrossASR(tts=tts, asrs=asrs, audio_dir=audio_dir, transcription_dir=transcription_dir)
     crossasr.setTTS(ResponsiveVoice())
     crossasr.addASR(Wav2Letter())
 
