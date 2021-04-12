@@ -3,6 +3,8 @@ import sys
 
 from gtts import gTTS
 
+from constant import GOOGLE, RV, ESPEAK, FESTIVAL
+
 from utils import make_dir, preprocess_text, create_filename_from_text
 
 class TTS:
@@ -24,7 +26,7 @@ class TTS:
 class Google(TTS):
 
     def __init__(self):
-        TTS.__init__(self, name="google")
+        TTS.__init__(self, name=GOOGLE)
 
     def generateAudio(self, text:str, audio_dir:str, filename:str):
         base_dir = os.getcwd()
@@ -44,7 +46,7 @@ class Google(TTS):
 class ResponsiveVoice(TTS):
 
     def __init__(self):
-        TTS.__init__(self, name="rv")
+        TTS.__init__(self, name=RV)
 
     def generateAudio(self, text:str, audio_dir:str, filename:str):
         base_dir = os.getcwd()
@@ -67,7 +69,7 @@ class ResponsiveVoice(TTS):
 class Espeak(TTS):
 
     def __init__(self):
-        TTS.__init__(self, name="espeak")
+        TTS.__init__(self, name=ESPEAK)
 
     def generateAudio(self, text:str, audio_dir:str, filename:str):
         base_dir = os.getcwd()
@@ -88,7 +90,7 @@ class Espeak(TTS):
 class Festival(TTS):
 
     def __init__(self):
-        TTS.__init__(self, name="festival")
+        TTS.__init__(self, name=FESTIVAL)
 
     def generateAudio(self, text:str, audio_dir:str, filename:str):
         base_dir = os.getcwd()

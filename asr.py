@@ -2,6 +2,12 @@ import os
 import sys
 import subprocess
 
+## constant for TTS
+from constant import GOOGLE, RV, ESPEAK, FESTIVAL
+
+## constant for ASR
+from constant import DS, DS2, W2L, WIT
+
 from utils import make_dir
 
 from wit import Wit as WitAPI
@@ -41,7 +47,7 @@ class ASR:
 
 class DeepSpeech(ASR):
     def __init__(self):
-        ASR.__init__(self, name="deepspeech")
+        ASR.__init__(self, name=DS)
 
     def recognizeAudio(self, audio_path: str) -> str:
         cmd = "deepspeech --model models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech/deepspeech-0.9.3-models.scorer --audio " + audio_path
@@ -59,7 +65,7 @@ class DeepSpeech(ASR):
 
 class DeepSpeech2(ASR):
     def __init__(self):
-        ASR.__init__(self, name="deepspeech2")
+        ASR.__init__(self, name=DS2)
 
     def recognizeAudio(self, audio_path: str) -> str:
         # audio_path = "/" + audio_path
@@ -78,7 +84,7 @@ class DeepSpeech2(ASR):
 
 class Wav2Letter(ASR):
     def __init__(self):
-        ASR.__init__(self, name="wav2letter")
+        ASR.__init__(self, name=W2L)
 
     def recognizeAudio(self, audio_path: str) -> str:
         cmd = "docker exec -it wav2letter sh -c \"cat /root/host/" + audio_path + \
@@ -113,7 +119,7 @@ class Wav2Letter(ASR):
 
 class Wit(ASR):
     def __init__(self):
-        ASR.__init__(self, name="wit")
+        ASR.__init__(self, name=WIT)
 
     def recognizeAudio(self, audio_path: str) -> str:
         transcription = ""
@@ -142,7 +148,7 @@ def test():
     audio_dir = "data/audio/"
     transcription_dir = "data/transcription/"
 
-    tts_name = "google"
+    tts_name = GOOGLE
     filename = "hello_world"
 
     audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
