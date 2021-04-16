@@ -15,15 +15,20 @@ def generate_europarl_corpus():
     data = "corpus/europarl-parallel-corpus-19962011/"
 
     df = pd.DataFrame([""], columns=["English"])
+    fpaths = []
     for (dirpath, _, filenames) in os.walk(data):
         print(filenames)
         for f in filenames:
             if ".csv" in f:
                 fpath = data + f
-                print(fpath)
-                d = pd.read_csv(fpath, delimiter=',')
-                df = pd.concat([df["English"], d["English"]])
-                df = pd.DataFrame(df, columns=["English"])
+                fpaths.append(fpath)
+    
+    fpaths = sorted(fpaths)
+    for fpath in fpaths :
+        print(fpath)
+        d = pd.read_csv(fpath, delimiter=',')
+        df = pd.concat([df["English"], d["English"]])
+        df = pd.DataFrame(df, columns=["English"])
 
     df = df.rename(columns={'English': 'sentence'})
 
