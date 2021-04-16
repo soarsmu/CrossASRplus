@@ -105,6 +105,14 @@ class Festival(TTS):
         return os.path.relpath(wavfile, base_dir)
 
 
+def create_tts_by_name(name: str):
+    return {
+        GOOGLE: Google(),
+        RV: ResponsiveVoice(),
+        ESPEAK: Espeak(),
+        FESTIVAL: Festival()
+    }
+
 def test():
     text = "hello world!"
     audio_dir = "data/audio/"
@@ -112,16 +120,16 @@ def test():
     text = preprocess_text(text)
     filename = create_filename_from_text(text)
 
-    google = Google()
+    google = create_tts_by_name(GOOGLE)
     google.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
     
-    rv = ResponsiveVoice()
+    rv =create_tts_by_name(RV)
     rv.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
 
-    espeak = Espeak()
+    espeak = create_tts_by_name(ESPEAK)
     espeak.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
 
-    festival = Festival()
+    festival = create_tts_by_name(FESTIVAL)
     festival.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
 
 if __name__ == "__main__":
