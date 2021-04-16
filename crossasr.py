@@ -5,6 +5,12 @@ from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST
 
 from utils import preprocess_text, create_filename_from_text, set_seed
 
+## constant for TTS
+from constant import GOOGLE, RV, ESPEAK, FESTIVAL
+
+## constant for ASR
+from constant import DS, DS2, W2L, WIT
+
 from tts import TTS, Google, ResponsiveVoice, Espeak, Festival
 from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter
 
@@ -75,7 +81,6 @@ class CrossASR:
         params:
         return:
         """
-        text = preprocess_text(text)
         filename = create_filename_from_text(text)
         audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.getAudioDir(), filename=filename)
         transcription_dir = os.path.join(self.getTranscriptionDir(), self.getTTS().getName())
@@ -139,6 +144,7 @@ def test():
     crossasr.addASR(Wav2Letter())
 
     text = "hello world!"
+    text = preprocess_text(text)
     crossasr.processText(text)
 
 
