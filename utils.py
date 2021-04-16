@@ -71,7 +71,9 @@ def substitute_word(text):
 def preprocess_text(text):
     text = remove_hex(text)
     text = remove_punctuation(text)
-    try :
+    try:  
+        # NOTE: it seems that the normalisation
+        #       process is not deterministic
         text = normalize_text(text)
     except :
         text = ""
