@@ -144,6 +144,14 @@ class Wit(ASR):
         return transcription
 
 
+def create_asr_by_name(name: str):
+    return {
+        DS: DeepSpeech(),
+        DS2: DeepSpeech2(),
+        W2L: Wav2Letter(),
+        WIT: Wit()
+    }
+
 def test():
     audio_dir = "data/audio/"
     transcription_dir = "data/transcription/"
@@ -154,20 +162,19 @@ def test():
     audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
     transcription_dir = os.path.join(transcription_dir, tts_name)
 
-
-    ds = DeepSpeech()
+    ds = create_asr_by_name(DS)
     ds.recognizeAudio(audio_path=audio_path)
     ds.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
-    ds2 = DeepSpeech2()
+    ds2 = create_asr_by_name(DS2)
     transcription = ds2.recognizeAudio(audio_path=audio_path)
     ds2.saveTranscription(transcription_dir=transcription_dir, filename=filename)
     
-    wit = Wit()
+    wit = create_asr_by_name(WIT)
     transcription = wit.recognizeAudio(audio_path=audio_path)
     wit.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
-    w2l = Wav2Letter()
+    w2l = create_asr_by_name(W2L)
     w2l.recognizeAudio(audio_path=audio_path)
     w2l.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
