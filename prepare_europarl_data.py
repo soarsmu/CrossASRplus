@@ -60,8 +60,9 @@ if __name__ == "__main__":
     config = utils.read_json(json_config_path)
 
     print(config)
+    seed = config["seed"]
 
-    utils.set_seed(config["seed"])
+    utils.set_seed(seed)
 
     print("start: " + str(datetime.now()))
 
@@ -85,7 +86,7 @@ if __name__ == "__main__":
 
     print("get sample: " + str(datetime.now()))
     # get sample data
-    seed = config["seed"]
+    
     df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
 
     N = 20000
