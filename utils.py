@@ -2,6 +2,7 @@ import os, sys
 import re, string
 import random
 import numpy as np
+import json
 from normalise import normalise, tokenize_basic
 
 
@@ -70,7 +71,10 @@ def substitute_word(text):
 def preprocess_text(text):
     text = remove_hex(text)
     text = remove_punctuation(text)
-    text = normalize_text(text)
+    try :
+        text = normalize_text(text)
+    except :
+        text = ""
     # need to remove punctuation again as normalise sometimes add punctuation
     text = remove_punctuation(text)
     text = text.lower()
@@ -84,3 +88,9 @@ def create_filename_from_text(text):
 def set_seed(seed: int) :
     random.seed(seed)
     np.random.seed(seed)
+
+
+def read_json(config_path: str):
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    return config
