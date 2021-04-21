@@ -96,3 +96,9 @@ def read_json(config_path: str):
     with open(config_path, 'r') as f:
         config = json.load(f)
     return config
+
+
+def save_execution_time(fpath:str, execution_time):
+    with open(fpath, "w+") as f :
+        f.write(f"{execution_time:.4f}")
+
