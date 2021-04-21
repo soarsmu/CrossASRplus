@@ -140,6 +140,7 @@ cython_debug/
 .vscode/
 
 data/
+execution_time/
 
 models/deepspeech/
 models/DeepSpeech/
