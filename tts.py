@@ -111,7 +111,7 @@ def create_tts_by_name(name: str):
         RV: ResponsiveVoice(),
         ESPEAK: Espeak(),
         FESTIVAL: Festival()
-    }
+    }[name]
 
 def test():
     text = "hello world!"
@@ -120,17 +120,11 @@ def test():
     text = preprocess_text(text)
     filename = create_filename_from_text(text)
 
-    google = create_tts_by_name(GOOGLE)
-    google.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
-    
-    rv =create_tts_by_name(RV)
-    rv.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
+    ttses = [GOOGLE, RV, ESPEAK, FESTIVAL]
 
-    espeak = create_tts_by_name(ESPEAK)
-    espeak.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
-
-    festival = create_tts_by_name(FESTIVAL)
-    festival.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
+    for tts_name in ttses :
+        tts = create_tts_by_name(tts_name)
+        tts.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
 
 if __name__ == "__main__":
     test()
