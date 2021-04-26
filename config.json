@@ -1,7 +1,7 @@
 {
     "seed": 2021,
     "input_corpus" : "europarl.txt",
-    "data_dir": "europarl/",
+    "output_dir": "europarl/",
     "tts" : "google",
     "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit"],
     "preprocessing" : {
@@ -9,5 +9,6 @@
         "remove_punctuation": true,
         "text_normalization" : true,
         "word_substituion": true
-    }
+    },
+    "recompute": false
 }
