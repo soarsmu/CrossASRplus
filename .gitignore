@@ -144,6 +144,8 @@ execution_time/
 
 models/deepspeech/
 models/DeepSpeech/
+!models/DeepSpeech/install.sh
+!models/DeepSpeech/run.sh
 models/wav2letter/
 
 corpus/europarl-parallel-corpus-19962011/
