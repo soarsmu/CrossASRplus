@@ -167,7 +167,7 @@ class CrossASR:
 
         print(f"Execution time: {execution_time}")
     
-    def processCorpus(self, text: [str]):
+    def processCorpus(self, texts: [str], recompute:bool):
         # """
         # Run CrossASR on a whole corpus**
         # given a corpus, which is a list of sentences, the CrossASR generates test cases.
@@ -175,8 +175,11 @@ class CrossASR:
         # return:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
-        1
 
+        i = 0
+        for text in texts :
+            filename = f"{i}"
+            self.processText(text, filename, recompute)
 
 def test(): 
 
@@ -198,7 +201,30 @@ def test():
     recompute = bool(config["recompute"])
     crossasr.processText(text=text, filename=filename, recompute=recompute)
 
+def test_corpus(): 
+
+    json_config_path = "config.json"
+    config = read_json(json_config_path)
+
+    set_seed(config["seed"])
+
+    tts = create_tts_by_name(config["tts"])
+    asrs = []
+    for asr_name in config["asrs"]:
+        asrs.append(create_asr_by_name(asr_name))
+
+    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"])
+    
+    corpus_path = config["input_corpus"]
+    file = open(corpus_path)
+    corpus = file.readlines()
+    texts = []
+    for text in corpus :
+        texts.append(corpus[:-1])
+    texts = texts[:10] # try the first 10
+    recompute = bool(config["recompute"])
+    crossasr.processCorpus(texts=texts, recompute=recompute)
 
 if __name__ == "__main__" :
-    set_seed(2021)
-    test()
+    # test()
+    test_corpus()
