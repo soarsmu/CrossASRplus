@@ -53,11 +53,6 @@ class ASR:
 
         return transcription
 
-        
-
-
-
-
 class DeepSpeech(ASR):
     def __init__(self):
         ASR.__init__(self, name=DS)
@@ -106,6 +101,8 @@ class Wav2Letter(ASR):
         proc = subprocess.Popen([cmd],
                                 stdout=subprocess.PIPE, shell=True)
         (out, _) = proc.communicate()
+
+        # print(out)
 
         transcription = self.concatWav2letterTranscription(out)
 
