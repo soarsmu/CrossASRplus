@@ -129,17 +129,32 @@ class CrossASR:
             audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
             save_execution_time(
                 fpath=time_for_generating_audio_fpath, execution_time=time.time() - start_time)
+        
+        ## add execution time for generating audio
         execution_time += get_execution_time(
-            fpath=time_for_generating_audio_fpath)
+            fpath=time_for_generating_audio_fpath)    
         
         transcription_dir = os.path.join(self.transcription_dir, self.getTTS().getName())
         
         transcriptions = {}
         for asr in self.asrs :
-            asr.recognizeAudio(audio_path=audio_path)
-            asr.saveTranscription(
-                transcription_dir=transcription_dir, filename=filename)
-            transcriptions[asr.getName()] = asr.getTranscription()
+            if recompute :
+                directory = os.path.join(self.execution_time_dir, TRANSRCRIPTION_DIR, self.getTTS().getName(), asr.getName())
+                make_dir(directory)
+                time_for_recognizing_audio_fpath = os.path.join(directory, filename + ".txt")
+                
+                start_time = time.time()
+                asr.recognizeAudio(audio_path=audio_path)
+                asr.saveTranscription(
+                    transcription_dir=transcription_dir, filename=filename)
+                save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
+            
+            
+            ## add execution time for generating audio
+            execution_time += get_execution_time(
+                fpath=time_for_generating_audio_fpath)    
+            
+            transcriptions[asr.getName()] = asr.loadTranscription(transcription_dir=transcription_dir, filename=filename)
         
         print(transcriptions)
 
@@ -149,6 +164,8 @@ class CrossASR:
         
         for asr_name, case in cases.items() :
             self.saveCase(self.case_dir, self.getTTS().getName(), asr_name, filename, str(case))
+
+        print(f"Execution time: {execution_time}")
     
     def processCorpus(self, text: [str]):
         # """
@@ -178,7 +195,7 @@ def test():
     text = "hello world!"
     text = preprocess_text(text)
     filename = "hello_world" 
-    recompute = True
+    recompute = bool(config["recompute"])
     crossasr.processText(text=text, filename=filename, recompute=recompute)
 
 
