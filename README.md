@@ -141,7 +141,7 @@ cd ../../../../
 docker pull paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7
 
 # please remove --gpus '"device=1"' if you only have one gpu
-docker run --name deepspeech2 --rm --gpus '"device=1"' -it -v $(pwd)/models/DeepSpeech:/DeepSpeech -v $(pwd)/audio/:/DeepSpeech/audio/ -v $(pwd)/data/:/DeepSpeech/data/ paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7 /bin/bash
+docker run --name deepspeech2 --rm --gpus '"device=1"' -it -v $(pwd)/models/DeepSpeech:/DeepSpeech -v $(pwd)/europarl/:/DeepSpeech/europarl/  paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7 /bin/bash
 
 apt-get update
 apt-get install git -y
@@ -212,7 +212,7 @@ cd ../../
 
 #### Run docker inference API
 ```
-docker run --name wav2letter -it --rm -v $(pwd)/audio/:/root/host/audio/ -v $(pwd)/models/:/root/host/models/ --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest 
+docker run --name wav2letter -it --rm -v $(pwd)/europarl/:/root/host/europarl/ -v $(pwd)/models/:/root/host/models/ --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest
 ```
 Then detach from the docker using ctrl+p & ctrl+q 
 
