@@ -5,7 +5,7 @@ import random
 
 from constant import GOOGLE, RV, FESTIVAL, ESPEAK
 from tts import create_tts_by_name
-from utils import create_filename_from_text, save_execution_time, make_dir
+from utils import save_execution_time, make_dir
 
 
 def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:str):
@@ -18,7 +18,7 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
 
     i = 1
     # for text in corpus :
-    for i in range(1, 20001) :
+    for i in range(0, 1) :
         text = corpus[i]
         text = text[:-1]
         filename = f"{i}"
@@ -31,14 +31,14 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
         i += 1
         print(f"Generate {i}")
         if tts_name in [GOOGLE]:
-            random_number = float(random.randint(1, 10))/10.
+            random_number = float(random.randint(15, 40))/10.
             time.sleep(random_number)
 
     file.close()
 
 
 if __name__ == "__main__" :
-    tts_name = FESTIVAL
+    tts_name = GOOGLE
     corpus_path = "corpus/europarl-20000.txt"
     data_dir = "data/"
     execution_time_dir = "execution_time/"
