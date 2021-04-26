@@ -92,11 +92,11 @@ class Wav2Letter(ASR):
 
         proc = subprocess.Popen([cmd],
                                 stdout=subprocess.PIPE, shell=True)
-        (out, err) = proc.communicate()
+        (out, _) = proc.communicate()
 
         transcription = self.concatWav2letterTranscription(out)
 
-        # print(f"Wav2letter transcription: {transcription}")
+        print(f"Wav2letter transcription: {transcription}")
         self.setTranscription(transcription)
         return transcription
 
@@ -105,7 +105,6 @@ class Wav2Letter(ASR):
         lines = out.splitlines()[21:-2]
         transcription = ""
 
-        j = 0
         for line in lines:
             line = line.decode()
             part = line.split(",")[-1]
@@ -150,7 +149,7 @@ def create_asr_by_name(name: str):
         DS2: DeepSpeech2(),
         W2L: Wav2Letter(),
         WIT: Wit()
-    }
+    }[name]
 
 def test():
     audio_dir = "data/audio/"
@@ -162,17 +161,17 @@ def test():
     audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
     transcription_dir = os.path.join(transcription_dir, tts_name)
 
-    ds = create_asr_by_name(DS)
-    ds.recognizeAudio(audio_path=audio_path)
-    ds.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+    # ds = create_asr_by_name(DS)
+    # ds.recognizeAudio(audio_path=audio_path)
+    # ds.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
-    ds2 = create_asr_by_name(DS2)
-    transcription = ds2.recognizeAudio(audio_path=audio_path)
-    ds2.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+    # ds2 = create_asr_by_name(DS2)
+    # ds2.recognizeAudio(audio_path=audio_path)
+    # ds2.saveTranscription(transcription_dir=transcription_dir, filename=filename)
     
-    wit = create_asr_by_name(WIT)
-    transcription = wit.recognizeAudio(audio_path=audio_path)
-    wit.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+    # wit = create_asr_by_name(WIT)
+    # wit.recognizeAudio(audio_path=audio_path)
+    # wit.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
     w2l = create_asr_by_name(W2L)
     w2l.recognizeAudio(audio_path=audio_path)
