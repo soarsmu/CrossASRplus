@@ -104,7 +104,7 @@ def save_execution_time(fpath:str, execution_time):
 
 
 def get_execution_time(fpath:str) :
-    f = open(fpath, "rb")
+    f = open(fpath, "r")
     val = f.readlines()[0]
     f.close()
     return float(val)
