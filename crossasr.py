@@ -1,4 +1,4 @@
-import os, time
+import os, time, random
 import numpy as np
 
 from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
@@ -85,7 +85,7 @@ class CrossASR:
         is_determinable = False
 
         for k, transcription in transcriptions.items():
-            word_error_rate = wer(transcription, text)
+            word_error_rate = wer(text, transcription)
             wers[k] = word_error_rate
             if word_error_rate == 0:
                 is_determinable = True
@@ -124,9 +124,12 @@ class CrossASR:
         make_dir(directory)
         time_for_generating_audio_fpath = os.path.join(directory, filename + ".txt")
         
-        if recompute :
+        audio_path = self.getTTS().getAudioPath(
+            text=text, audio_dir=self.audio_dir, filename=filename)
+        
+        if recompute or not os.path.exists(audio_path):
             start_time = time.time()
-            audio_path = self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
+            self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
             save_execution_time(
                 fpath=time_for_generating_audio_fpath, execution_time=time.time() - start_time)
         
@@ -138,34 +141,56 @@ class CrossASR:
         
         transcriptions = {}
         for asr in self.asrs :
+            directory = os.path.join(
+                self.execution_time_dir, TRANSRCRIPTION_DIR, self.getTTS().getName(), asr.getName())
+            make_dir(directory)
+            time_for_recognizing_audio_fpath = os.path.join(
+                directory, filename + ".txt")
+
             if recompute :
-                directory = os.path.join(self.execution_time_dir, TRANSRCRIPTION_DIR, self.getTTS().getName(), asr.getName())
-                make_dir(directory)
-                time_for_recognizing_audio_fpath = os.path.join(directory, filename + ".txt")
-                
                 start_time = time.time()
                 asr.recognizeAudio(audio_path=audio_path)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
             
-            
+            transcription = asr.loadTranscription(
+                transcription_dir=transcription_dir, filename=filename)
+            num_try = 0
+            while transcription == "" and num_try < 3 :
+                start_time = time.time()
+                asr.recognizeAudio(audio_path=audio_path)
+                asr.saveTranscription(
+                    transcription_dir=transcription_dir, filename=filename)
+                save_execution_time(
+                    fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
+                transcription = asr.loadTranscription(
+                    transcription_dir=transcription_dir, filename=filename)
+
+                if asr.getName() == WIT :
+                    random_number = float(random.randint(9, 47))/10.
+                    time.sleep(random_number)
+
+                num_try += 1
+
+            transcriptions[asr.getName()] = transcription
+
+            time_for_recognizing_audio_fpath
             ## add execution time for generating audio
             execution_time += get_execution_time(
-                fpath=time_for_generating_audio_fpath)    
+                fpath=time_for_recognizing_audio_fpath)    
             
-            transcriptions[asr.getName()] = asr.loadTranscription(transcription_dir=transcription_dir, filename=filename)
-        
-        print(transcriptions)
+        # print(transcriptions)
 
         cases = self.caseDeterminer(text, transcriptions)
         
-        print(cases)
+        # print(cases)
         
         for asr_name, case in cases.items() :
             self.saveCase(self.case_dir, self.getTTS().getName(), asr_name, filename, str(case))
 
-        print(f"Execution time: {execution_time}")
+        # print(f"Execution time: {execution_time}")
+        return cases, execution_time
     
     def processCorpus(self, texts: [str], recompute:bool):
         # """
@@ -176,10 +201,19 @@ class CrossASR:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
 
+        execution_time = 0.
+        start_time = time.time()
+
         i = 0
         for text in texts :
             filename = f"{i}"
-            self.processText(text, filename, recompute)
+            print(f"Procesing-{i}")
+            i += 1
+            cases, exec_time = self.processText(text, filename, recompute)
+            execution_time += exec_time
+            # if execution_time + time.time() - start_time > 3600 :
+            #     print("end of iteration")
+            #     break
 
 def test(): 
 
@@ -220,8 +254,8 @@ def test_corpus():
     corpus = file.readlines()
     texts = []
     for text in corpus :
-        texts.append(corpus[:-1])
-    texts = texts[:10] # try the first 10
+        texts.append(text[:-1])
+    # texts = texts[:10] # try the first 10
     recompute = bool(config["recompute"])
     crossasr.processCorpus(texts=texts, recompute=recompute)
 
