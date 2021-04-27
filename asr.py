@@ -48,7 +48,9 @@ class ASR:
         transcription_dir = os.path.join(transcription_dir, self.getName())
         transcription_path = os.path.join(transcription_dir, filename + ".txt")
         f = open(transcription_path, "r") 
-        transcription = f.readlines()[0]
+        lines = f.readlines()
+        if len(lines) == 0 : return ""
+        transcription = lines[0]
         f.close()
 
         return transcription
