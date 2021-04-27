@@ -10,5 +10,7 @@
         "text_normalization" : true,
         "word_substituion": true
     },
-    "recompute": false
+    "recompute": false,
+    "time_budget": 3600,
+    "num_iteration": 5
 }
