@@ -192,7 +192,7 @@ class CrossASR:
         # print(f"Execution time: {execution_time}")
         return cases, execution_time
     
-    def processCorpus(self, texts: [str], recompute:bool):
+    def processCorpus(self, texts: [str], recompute:bool, time_budget: int, num_iteration: int):
         # """
         # Run CrossASR on a whole corpus**
         # given a corpus, which is a list of sentences, the CrossASR generates test cases.
@@ -201,19 +201,37 @@ class CrossASR:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
 
-        execution_time = 0.
-        start_time = time.time()
+        def processOneIteration(texts: [str], recompute: bool, time_budget: int):
+            execution_time = 0.
+            processed_texts = []
+            cases = []
+            start_time = time.time()
 
-        i = 0
-        for text in texts :
-            filename = f"{i}"
-            print(f"Procesing-{i}")
-            i += 1
-            cases, exec_time = self.processText(text, filename, recompute)
-            execution_time += exec_time
-            # if execution_time + time.time() - start_time > 3600 :
-            #     print("end of iteration")
-            #     break
+            i = 0
+            for text in texts :
+                processed_texts.append(text)
+                filename = f"{i}"
+                print(f"Procesing-{i}")
+                case, exec_time = self.processText(text, filename, recompute)
+                cases.append(case)
+                execution_time += exec_time
+                i += 1
+                if execution_time + time.time() - start_time > time_budget :
+                    print("end of iteration")
+                    break
+            remaining_texts = texts[i:]
+
+            assert len(texts) == (len(processed_texts) + len(remaining_texts))
+            
+            return processed_texts, remaining_texts, cases
+        
+        
+        for i in range(num_iteration): 
+            processed_texts, remaining_texts, cases = processOneIteration(
+                texts, recompute, time_budget)
+        
+
+    
 
 def test(): 
 
@@ -257,7 +275,9 @@ def test_corpus():
         texts.append(text[:-1])
     # texts = texts[:10] # try the first 10
     recompute = bool(config["recompute"])
-    crossasr.processCorpus(texts=texts, recompute=recompute)
+    time_budget = int(config["time_budget"])
+    num_iteration = int(config["num_iteration"])
+    crossasr.processCorpus(texts=texts, recompute=recompute, time_budget=time_budget,num_iteration=num_iteration)
 
 if __name__ == "__main__" :
     # test()
