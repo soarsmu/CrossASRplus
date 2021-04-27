@@ -33,9 +33,25 @@ from jiwer import wer
 
 # class Estimator:
 
+class Text:
+    def __init__(self, id: int, text: str):
+        self.id = id
+        self.text = text
+
+    def getId(self):
+        return self.id
+
+    def setId(self, id: int):
+        self.id = id
+
+    def getText(self):
+        return self.text
+
+    def setText(self, text: str):
+        self.text = text
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str) :
+    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0) :
         self.tts = tts
         self.asrs = asrs
         
@@ -43,6 +59,10 @@ class CrossASR:
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
+        self.recompute = recompute
+        self.num_iteration = num_iteration
+        self.time_budget = time_budget
+        self.max_num_retry = max_num_retry
 
 
     def getTTS(self) :
@@ -90,18 +110,18 @@ class CrossASR:
             if word_error_rate == 0:
                 is_determinable = True
 
-        cases = {}
+        case = {}
         if is_determinable:
             for k in transcriptions.keys():
                 if wers[k] == 0:
-                    cases[k] = SUCCESSFUL_TEST_CASE
+                    case[k] = SUCCESSFUL_TEST_CASE
                 else:
-                    cases[k] = FAILED_TEST_CASE
+                    case[k] = FAILED_TEST_CASE
         else:
             for k in transcriptions.keys():
-                cases[k] = UNDETERMINABLE_TEST_CASE
+                case[k] = UNDETERMINABLE_TEST_CASE
 
-        return cases
+        return case
 
     def saveCase(self, case_dir: str, tts_name: str, asr_name: str, filename:str, case:str) :
         case_dir = os.path.join(case_dir, tts_name, asr_name)
@@ -111,7 +131,7 @@ class CrossASR:
         file.write(case)
         file.close()
 
-    def processText(self, text: str, filename: str, recompute: bool) :
+    def processText(self, text: str, filename: str) :
         """
         Run CrossASR on a single text
         Description: Given a sentence as input, the program will generate a test case. The program needs some parameters, i.e. a TTS and ASRs used
@@ -127,7 +147,7 @@ class CrossASR:
         audio_path = self.getTTS().getAudioPath(
             text=text, audio_dir=self.audio_dir, filename=filename)
         
-        if recompute or not os.path.exists(audio_path):
+        if self.recompute or not os.path.exists(audio_path):
             start_time = time.time()
             self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
             save_execution_time(
@@ -147,7 +167,7 @@ class CrossASR:
             time_for_recognizing_audio_fpath = os.path.join(
                 directory, filename + ".txt")
 
-            if recompute :
+            if self.recompute :
                 start_time = time.time()
                 asr.recognizeAudio(audio_path=audio_path)
                 asr.saveTranscription(
@@ -156,8 +176,8 @@ class CrossASR:
             
             transcription = asr.loadTranscription(
                 transcription_dir=transcription_dir, filename=filename)
-            num_try = 0
-            while transcription == "" and num_try < 3 :
+            num_retry = 0
+            while transcription == "" and num_retry < self.max_num_retry :
                 start_time = time.time()
                 asr.recognizeAudio(audio_path=audio_path)
                 asr.saveTranscription(
@@ -171,7 +191,7 @@ class CrossASR:
                     random_number = float(random.randint(9, 47))/10.
                     time.sleep(random_number)
 
-                num_try += 1
+                num_retry += 1
 
             transcriptions[asr.getName()] = transcription
 
@@ -192,16 +212,16 @@ class CrossASR:
         # print(f"Execution time: {execution_time}")
         return cases, execution_time
     
-    def processCorpus(self, texts: [str], recompute:bool, time_budget: int, num_iteration: int):
+    def processCorpus(self, texts: [Text]):
         # """
-        # Run CrossASR on a whole corpus**
+        # Run CrossASR on a corpus
         # given a corpus, which is a list of sentences, the CrossASR generates test cases.
         # There are 2 options, i.e. using FPP or without FPP
         # return:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
 
-        def processOneIteration(texts: [str], recompute: bool, time_budget: int):
+        def processOneIteration(texts: [Text]):
             execution_time = 0.
             processed_texts = []
             cases = []
@@ -209,28 +229,47 @@ class CrossASR:
 
             i = 0
             for text in texts :
-                processed_texts.append(text)
-                filename = f"{i}"
-                print(f"Procesing-{i}")
-                case, exec_time = self.processText(text, filename, recompute)
+                case, exec_time = self.processText(text=text.getText(), filename=f"{text.getId()}")
                 cases.append(case)
                 execution_time += exec_time
                 i += 1
-                if execution_time + time.time() - start_time > time_budget :
-                    print("end of iteration")
+                if execution_time + time.time() - start_time > self.time_budget :
+                    # print(f"Number of processed texts {i}")
                     break
+            processed_texts = texts[:i]
             remaining_texts = texts[i:]
 
             assert len(texts) == (len(processed_texts) + len(remaining_texts))
             
             return processed_texts, remaining_texts, cases
         
-        
-        for i in range(num_iteration): 
-            processed_texts, remaining_texts, cases = processOneIteration(
-                texts, recompute, time_budget)
-        
+        processed_texts = []
+        cases = []
+        num_failed_test_cases = []
+        remaining_texts = texts
+        for _ in range(self.num_iteration): 
+            # print(len(remaining_texts))
+            curr_processed_texts, remaining_texts, curr_cases = processOneIteration(
+                remaining_texts)
+            processed_texts.extend(curr_processed_texts)
+            cases.extend(curr_cases)
+            num_failed_test_cases.append(calculate_cases(curr_cases, mode=FAILED_TEST_CASE))
 
+        # print(len(processed_texts))
+        print(sum(num_failed_test_cases))
+
+        ## TODO: 
+        # save raw output, 
+        # calculate the number of failed test cases in each iteration
+        # create visualisation
+        
+def calculate_cases(cases, mode=FAILED_TEST_CASE):
+    count = 0
+    for c in cases :
+        for _, v in c.items() :
+            if v == mode :
+                count += 1
+    return count
     
 
 def test(): 
@@ -245,13 +284,12 @@ def test():
     for asr_name in config["asrs"]:
         asrs.append(create_asr_by_name(asr_name))
 
-    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"])
+    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
     
     text = "hello world!"
     text = preprocess_text(text)
     filename = "hello_world" 
-    recompute = bool(config["recompute"])
-    crossasr.processText(text=text, filename=filename, recompute=recompute)
+    crossasr.processText(text=text, filename=filename)
 
 def test_corpus(): 
 
@@ -265,19 +303,24 @@ def test_corpus():
     for asr_name in config["asrs"]:
         asrs.append(create_asr_by_name(asr_name))
 
-    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"])
+    kwargs = {
+        "recompute" : bool(config["recompute"]),
+        "time_budget" : int(config["time_budget"]),
+        "num_iteration" : int(config["num_iteration"]),
+        "max_num_retry": int(config["max_num_retry"])
+    }
+    
+    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
     
     corpus_path = config["input_corpus"]
     file = open(corpus_path)
     corpus = file.readlines()
     texts = []
+    i = 1
     for text in corpus :
-        texts.append(text[:-1])
-    # texts = texts[:10] # try the first 10
-    recompute = bool(config["recompute"])
-    time_budget = int(config["time_budget"])
-    num_iteration = int(config["num_iteration"])
-    crossasr.processCorpus(texts=texts, recompute=recompute, time_budget=time_budget,num_iteration=num_iteration)
+        texts.append(Text(i, text[:-1]))
+        i += 1
+    crossasr.processCorpus(texts=texts)
 
 if __name__ == "__main__" :
     # test()
