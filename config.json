@@ -12,5 +12,6 @@
     },
     "recompute": false,
     "time_budget": 3600,
-    "num_iteration": 5
+    "num_iteration": 5,
+    "max_num_retry": 0
 }
