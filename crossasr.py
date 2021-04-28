@@ -257,7 +257,7 @@ class CrossASR:
         ranking = self.estimator.predict(self.get_text_only(texts))
         
         ## https://stackoverflow.com/questions/6618515/sorting-list-based-on-values-from-another-list
-        texts = [x for _, x in sorted(zip(ranking, texts))]
+        texts = [x for _, x in reversed(sorted(zip(ranking, texts)))]
         
         return texts
         
