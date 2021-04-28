@@ -17,6 +17,7 @@ from text import Text
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, AdamW
+from transformers import Trainer, TrainingArguments
 from scipy.special import softmax
 
 
@@ -45,7 +46,7 @@ class HuggingFaceDataset(torch.utils.data.Dataset):
         return len(self.labels)
 
 class HuggingFaceTransformer(Estimator):
-    def __init__(self, name):
+    def __init__(self, name, max_sequence_length=128):
         Estimator.__init__(self, name=name)
 
         ## init boiler plate
@@ -60,6 +61,8 @@ class HuggingFaceTransformer(Estimator):
         self.device = torch.device(
             'cuda') if torch.cuda.is_available() else torch.device('cpu')
 
+        self.max_sequence_length = max_sequence_length
+
     def fit(self, X:[str], y:[int]) :
         
         self.model.to(self.device)
@@ -68,25 +71,46 @@ class HuggingFaceTransformer(Estimator):
         train_texts = X
         train_labels = y
 
-        train_encodings = self.tokenizer(train_texts, truncation=True, padding=True)
+        
+        train_encodings = self.tokenizer(train_texts, truncation=True, padding=True, max_length=self.max_sequence_length)
         train_dataset = HuggingFaceDataset(train_encodings, train_labels)
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
+        # train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
 
-        optim = AdamW(self.model.parameters(), lr=5e-5)
+        # optim = AdamW(self.model.parameters(), lr=3e-5)
 
-        for _ in range(1):
-            for batch in train_loader:
-                optim.zero_grad()
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                labels = batch['labels'].to(self.device)
-                outputs = self.model(
-                    input_ids, attention_mask=attention_mask, labels=labels)
-                loss = outputs[0]
-                loss.backward()
-                optim.step()
-        del train_loader
-        torch.cuda.empty_cache()
+        # for _ in range(1):
+        #     for batch in train_loader:
+        #         optim.zero_grad()
+        #         input_ids = batch['input_ids'].to(self.device)
+        #         attention_mask = batch['attention_mask'].to(self.device)
+        #         labels = batch['labels'].to(self.device)
+        #         outputs = self.model(
+        #             input_ids, attention_mask=attention_mask, labels=labels)
+        #         loss = outputs[0]
+        #         loss.backward()
+        #         optim.step()
+        # del train_loader
+        # torch.cuda.empty_cache()
+
+        training_args = TrainingArguments(
+            output_dir='./results',          # output directory
+            num_train_epochs=1,              # total number of training epochs
+            per_device_train_batch_size=16,  # batch size per device during training
+            per_device_eval_batch_size=64,   # batch size for evaluation
+            learning_rate=5e-05,
+            weight_decay=0.01,               # strength of weight decay
+            logging_dir='./logs',            # directory for storing logs
+            logging_steps=10,
+        )
+
+        trainer = Trainer(
+            # the instantiated 🤗 Transformers model to be trained
+            model=self.model,
+            args=training_args,                  # training arguments, defined above
+            train_dataset=train_dataset         # training dataset
+        )
+
+        trainer.train()
 
     def predict(self, X: [str]):
         self.model.eval()
@@ -95,10 +119,10 @@ class HuggingFaceTransformer(Estimator):
         test_labels = [0] * len(X)
 
         test_encodings = self.tokenizer(
-            test_texts, truncation=True, padding=True)
+            test_texts, truncation=True, padding=True, max_length=self.max_sequence_length)
         test_dataset = HuggingFaceDataset(test_encodings, test_labels)
         test_loader = torch.utils.data.DataLoader(
-            test_dataset, batch_size=8, shuffle=True)
+            test_dataset, batch_size=32, shuffle=False)
 
         res = []
 
