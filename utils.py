@@ -90,6 +90,11 @@ def create_filename_from_text(text):
 def set_seed(seed: int) :
     random.seed(seed)
     np.random.seed(seed)
+    
+    import torch
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def read_json(config_path: str):
