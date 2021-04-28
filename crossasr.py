@@ -7,6 +7,7 @@ from constant import AUDIO_DIR, TRANSRCRIPTION_DIR
 
 from utils import preprocess_text, create_filename_from_text, set_seed
 from utils import make_dir, read_json, save_execution_time, get_execution_time
+from text import Text
 
 ## constant for TTS
 from constant import GOOGLE, RV, ESPEAK, FESTIVAL
@@ -19,39 +20,10 @@ from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter, create_asr_by_nam
 
 from jiwer import wer
 
-# class Classifier:
-# 	def __init__(name):
-# 	def classify(List[:text])
-
-# # exract text and audio feature into emebedding feature consumable by Estimator
-
-
-# class FeatureExtractor:
-
-# 	# estimator to predict how likely the input to be a failed test case
-
-
-# class Estimator:
-
-class Text:
-    def __init__(self, id: int, text: str):
-        self.id = id
-        self.text = text
-
-    def getId(self):
-        return self.id
-
-    def setId(self, id: int):
-        self.id = id
-
-    def getText(self):
-        return self.text
-
-    def setText(self, text: str):
-        self.text = text
+from estimator import HuggingFaceTransformer, create_huggingface_estimator_by_name
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0) :
+    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, estimator=None) :
         self.tts = tts
         self.asrs = asrs
         
@@ -63,6 +35,8 @@ class CrossASR:
         self.num_iteration = num_iteration
         self.time_budget = time_budget
         self.max_num_retry = max_num_retry
+
+        self.estimator = estimator
 
 
     def getTTS(self) :
@@ -253,6 +227,10 @@ class CrossASR:
                 remaining_texts)
             processed_texts.extend(curr_processed_texts)
             cases.extend(curr_cases)
+            if self.estimator :
+                labels = get_labels_from_cases(cases)
+                self.trainEstimator(processed_texts, labels)
+                remaining_texts = self.rank(remaining_texts)
             num_failed_test_cases.append(calculate_cases(curr_cases, mode=FAILED_TEST_CASE))
 
         # print(len(processed_texts))
@@ -262,6 +240,26 @@ class CrossASR:
         # save raw output, 
         # calculate the number of failed test cases in each iteration
         # create visualisation
+
+    def get_text_only(self, texts:[Text]) -> [str]:
+        res = []
+        for t in texts :
+            res.append(t.getText()) 
+        return res    
+
+    
+    def trainEstimator(self, processed_texts, labels):
+        train_texts = self.get_text_only(processed_texts)
+        self.estimator.fit(train_texts, labels)
+
+    def rank(self, texts:[Text]): 
+        
+        ranking = self.estimator.predict(self.get_text_only(texts))
+        
+        ## https://stackoverflow.com/questions/6618515/sorting-list-based-on-values-from-another-list
+        texts = [x for _, x in sorted(zip(ranking, texts))]
+        
+        return texts
         
 def calculate_cases(cases, mode=FAILED_TEST_CASE):
     count = 0
@@ -270,7 +268,24 @@ def calculate_cases(cases, mode=FAILED_TEST_CASE):
             if v == mode :
                 count += 1
     return count
+
+
+
+
+def get_labels_from_cases(cases) :
+    def determine_label(case) :
+        if UNDETERMINABLE_TEST_CASE in case.values() :
+            return UNDETERMINABLE_TEST_CASE
+        if FAILED_TEST_CASE :
+            return FAILED_TEST_CASE
+        return SUCCESSFUL_TEST_CASE
+
+    labels = []
+    for case in cases :
+        label = determine_label(case)
+        labels.append(label)
     
+    return labels
 
 def test(): 
 
@@ -284,7 +299,7 @@ def test():
     for asr_name in config["asrs"]:
         asrs.append(create_asr_by_name(asr_name))
 
-    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
+    crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"])
     
     text = "hello world!"
     text = preprocess_text(text)
@@ -309,6 +324,10 @@ def test_corpus():
         "num_iteration" : int(config["num_iteration"]),
         "max_num_retry": int(config["max_num_retry"])
     }
+
+    if config["estimator"] :
+        if config["estimator_type"] == "huggingface":
+            kwargs["estimator"] = create_huggingface_estimator_by_name(str(config["estimator"]))
     
     crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
     
@@ -317,7 +336,8 @@ def test_corpus():
     corpus = file.readlines()
     texts = []
     i = 1
-    for text in corpus :
+    # for text in corpus :
+    for text in corpus:
         texts.append(Text(i, text[:-1]))
         i += 1
     crossasr.processCorpus(texts=texts)
