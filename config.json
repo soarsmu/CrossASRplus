@@ -13,5 +13,8 @@
     "recompute": false,
     "time_budget": 3600,
     "num_iteration": 5,
-    "max_num_retry": 0
+    "max_num_retry": 0,
+    "estimator": "albert-base-v2",
+    "estimator_type": "huggingface",
+    "estimator_config": "albert.json"
 }
