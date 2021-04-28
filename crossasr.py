@@ -195,14 +195,20 @@ class CrossASR:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
 
-        def processOneIteration(texts: [Text]):
-            execution_time = 0.
-            processed_texts = []
-            cases = []
+        def processOneIteration(remaining_texts: [Text], processed_texts: [Text], cases):
             start_time = time.time()
 
+            # processed_texts.extend(curr_processed_texts)
+            # cases.extend(curr_cases)
+            if self.estimator and len(processed_texts) > 0:
+                labels = get_labels_from_cases(cases)
+                self.trainEstimator(processed_texts, labels)
+                remaining_texts = self.rank(remaining_texts)
+
+            execution_time = 0.
+            
             i = 0
-            for text in texts :
+            for text in remaining_texts :
                 case, exec_time = self.processText(text=text.getText(), filename=f"{text.getId()}")
                 cases.append(case)
                 execution_time += exec_time
@@ -210,31 +216,22 @@ class CrossASR:
                 if execution_time + time.time() - start_time > self.time_budget :
                     # print(f"Number of processed texts {i}")
                     break
-            processed_texts = texts[:i]
-            remaining_texts = texts[i:]
+            processed_texts.extend(texts[:i])
+            remaining_texts = remaining_texts[i:]
 
-            assert len(texts) == (len(processed_texts) + len(remaining_texts))
-            
-            return processed_texts, remaining_texts, cases
+            # assert len(texts) == (len(processed_texts) + len(remaining_texts))
+            # return processed_texts, remaining_texts, cases
         
+        remaining_texts = texts
         processed_texts = []
         cases = []
         num_failed_test_cases = []
-        remaining_texts = texts
         for _ in range(self.num_iteration): 
-            # print(len(remaining_texts))
-            curr_processed_texts, remaining_texts, curr_cases = processOneIteration(
-                remaining_texts)
-            processed_texts.extend(curr_processed_texts)
-            cases.extend(curr_cases)
-            if self.estimator :
-                labels = get_labels_from_cases(cases)
-                self.trainEstimator(processed_texts, labels)
-                remaining_texts = self.rank(remaining_texts)
-            num_failed_test_cases.append(calculate_cases(curr_cases, mode=FAILED_TEST_CASE))
+            processOneIteration(remaining_texts, processed_texts, cases)
+            num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
 
         # print(len(processed_texts))
-        print(sum(num_failed_test_cases))
+        print(num_failed_test_cases[-1])
 
         ## TODO: 
         # save raw output, 
