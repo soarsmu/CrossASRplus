@@ -152,3 +152,5 @@ corpus/europarl-parallel-corpus-19962011/
 corpus/europarl-full.csv
 
 europarl/
+
+results/
