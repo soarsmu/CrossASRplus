@@ -151,6 +151,8 @@ models/wav2letter/
 corpus/europarl-parallel-corpus-19962011/
 corpus/europarl-full.csv
 
-europarl/
+europarl-seed2021/
+europarl-seed2022/
+europarl-seed2023/
 
 results/
