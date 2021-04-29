@@ -1,6 +1,7 @@
 import os, time, random
 import numpy as np
 
+import constant
 from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
 from constant import DATA_DIR, EXECUTION_TIME_DIR, CASE_DIR
 from constant import AUDIO_DIR, TRANSRCRIPTION_DIR
@@ -31,6 +32,10 @@ class CrossASR:
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
+        result_dir = os.path.join(output_dir, "result")
+        make_dir(result_dir)
+        experiment_name = f"with-estimator-{estimator.getName()}" if estimator else "without-estimator"
+        self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
         self.recompute = recompute
         self.num_iteration = num_iteration
         self.time_budget = time_budget
@@ -219,9 +224,6 @@ class CrossASR:
             processed_texts.extend(texts[:i])
             remaining_texts = remaining_texts[i:]
 
-            # assert len(texts) == (len(processed_texts) + len(remaining_texts))
-            # return processed_texts, remaining_texts, cases
-        
         remaining_texts = texts
         processed_texts = []
         cases = []
@@ -231,7 +233,8 @@ class CrossASR:
             num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
 
         # print(len(processed_texts))
-        print(num_failed_test_cases[-1])
+        # print(num_failed_test_cases[-1])
+        np.save(self.outputfile_failed_test_case, num_failed_test_cases)
 
         ## TODO: 
         # save raw output, 
@@ -265,9 +268,6 @@ def calculate_cases(cases, mode=FAILED_TEST_CASE):
             if v == mode :
                 count += 1
     return count
-
-
-
 
 def get_labels_from_cases(cases) :
     def determine_label(case) :
@@ -328,7 +328,7 @@ def test_corpus():
     
     crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
     
-    corpus_path = config["input_corpus"]
+    corpus_path = os.path.join(config["output_dir"], constant.CORPUS_PATH)
     file = open(corpus_path)
     corpus = file.readlines()
     texts = []
