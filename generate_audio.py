@@ -2,7 +2,7 @@ import os
 import time
 import random
 
-
+import constant
 from constant import GOOGLE, RV, FESTIVAL, ESPEAK
 from constant import DATA_DIR, AUDIO_DIR, EXECUTION_TIME_DIR
 from tts import create_tts_by_name
@@ -20,7 +20,7 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
 
     i = 1
     # for text in corpus :
-    for i in range(0, 1) :
+    for i in range(0, len(corpus)) :
         text = corpus[i]
         text = text[:-1]
         filename = f"{i}"
@@ -45,7 +45,7 @@ if __name__ == "__main__" :
 
     set_seed(config["seed"])
 
-    corpus_path = config["input_corpus"]
+    corpus_path = os.path.join(config["output_dir"], constant.CORPUS_PATH)
     output_dir = config["output_dir"]
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
