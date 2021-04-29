@@ -4,6 +4,8 @@ SUCCESSFUL_TEST_CASE = 2
 
 NUM_LABELS = 3
 
+CORPUS_PATH = "corpus/europarl-20000.txt"
+
 DATA_DIR = "data/"
 EXECUTION_TIME_DIR = "execution_time/"
 CASE_DIR = "case/"
