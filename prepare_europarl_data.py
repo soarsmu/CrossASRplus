@@ -99,7 +99,8 @@ if __name__ == "__main__":
 
     print("write data: " + str(datetime.now()))
 
-    outfile = f"corpus/europarl-{N}.txt"
+    # TODO: make the folder first 
+    outfile = os.path.join(config["output_dir"], constant.CORPUS_PATH)
 
     file = open(outfile, "w+")
     for s in data:
