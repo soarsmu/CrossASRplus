@@ -161,13 +161,25 @@ class Wav2Vec2(ASR):
     def __init__(self):
         ASR.__init__(self, name=W2V)
 
+        self.tokenizer = None
+        self.model = None
+
         # load pretrained model
-        self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-base-960h")
-        self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+        # self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-base-960h")
+        # self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
         # self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         # self.model.to(self.device)
 
     def recognizeAudio(self, audio_path: str) -> str:
+
+        # load pretrained model
+        if not self.tokenizer :
+            self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-base-960h")
+        if not self.model :
+            self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+        # self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        # self.model.to(self.device)
+
         # load audio
         audio_input, _ = sf.read(audio_path)
 
