@@ -25,7 +25,7 @@ from jiwer import wer
 
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, estimator=None) :
+    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, text_batch_size=400, estimator=None) :
         self.tts = tts
         self.asrs = asrs
         
@@ -33,17 +33,19 @@ class CrossASR:
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
-        asrs_dir = "_".join([asr.getName() for asr in asrs])
-        result_dir = os.path.join(output_dir, "result", tts.getName(), asrs_dir)
-        make_dir(result_dir)
-        experiment_name = f"with-estimator-{estimator.getName().replace('/','-')}" if estimator else "without-estimator"
-        self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
         self.recompute = recompute
         self.num_iteration = num_iteration
         self.time_budget = time_budget
         self.max_num_retry = max_num_retry
-
+        self.text_batch_size = text_batch_size
         self.estimator = estimator
+
+        asrs_dir = "_".join([asr.getName() for asr in asrs])
+        result_dir = os.path.join(output_dir, "result", tts.getName(), asrs_dir, f"text_batch_size_{text_batch_size}")
+        make_dir(result_dir)
+        experiment_name = f"with-estimator-{estimator.getName().replace('/','-')}" if estimator else "without-estimator"
+        self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
+        
 
 
     def getTTS(self) :
@@ -202,20 +204,18 @@ class CrossASR:
         # """
         # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
 
-        def processOneIteration(remaining_texts: [Text], processed_texts: [Text], cases):
+        def processOneIteration(curr_texts: [Text], processed_texts: [Text], cases):
             start_time = time.time()
 
-            # processed_texts.extend(curr_processed_texts)
-            # cases.extend(curr_cases)
             if self.estimator and len(processed_texts) > 0:
                 labels = get_labels_from_cases(cases)
                 self.trainEstimator(processed_texts, labels)
-                remaining_texts = self.rank(remaining_texts)
+                curr_texts = self.rank(curr_texts)
 
             execution_time = 0.
             
             i = 0
-            for text in remaining_texts :
+            for text in curr_texts :
                 case, exec_time = self.processText(text=text.getText(), filename=f"{text.getId()}")
                 cases.append(case)
                 execution_time += exec_time
@@ -223,28 +223,32 @@ class CrossASR:
                 if execution_time + time.time() - start_time > self.time_budget :
                     # print(f"Number of processed texts {i}")
                     break
-            processed_texts.extend(texts[:i])
-            remaining_texts = remaining_texts[i:]
+            processed_texts.extend(curr_texts[:i])
 
-        remaining_texts = texts
+        
         processed_texts = []
         cases = []
         num_failed_test_cases = []
         num_failed_test_cases_per_asr = {}
+        num_processed_texts = []
         for asr in self.asrs:
             num_failed_test_cases_per_asr[asr.getName()] = []
-        for _ in range(self.num_iteration): 
-            processOneIteration(remaining_texts, processed_texts, cases)
+        
+        for i in range(self.num_iteration): 
+            curr_texts = texts[i*self.text_batch_size:(i+1)*self.text_batch_size]
+            processOneIteration(curr_texts, processed_texts, cases)
             num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
             for asr in self.asrs :
                 num_failed_test_cases_per_asr[asr.getName()].append(calculate_cases_per_asr(
                     cases, mode=FAILED_TEST_CASE, asr_name=asr.getName()))
+            num_processed_texts.append(len(processed_texts))
 
         data = {}
         data["number_of_failed_test_cases_all"] = num_failed_test_cases
         data["number_of_failed_test_cases_per_asr"] = num_failed_test_cases_per_asr
+        data["number_of_processed_texts"] = num_processed_texts
         with open(self.outputfile_failed_test_case + ".json", 'w') as outfile:
-            json.dump(data, outfile)
+            json.dump(data, outfile, indent=2, sort_keys=True)
 
         # print(len(processed_texts))
         # print(num_failed_test_cases[-1])
@@ -343,6 +347,7 @@ def test_corpus():
         "recompute" : bool(config["recompute"]),
         "time_budget" : int(config["time_budget"]),
         "num_iteration" : int(config["num_iteration"]),
+        "text_batch_size" : int(config["text_batch_size"]),
         "max_num_retry": int(config["max_num_retry"])
     }
 
