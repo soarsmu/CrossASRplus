@@ -1,5 +1,6 @@
 import os, time, random
 import numpy as np
+import json
 
 import constant
 from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
@@ -16,12 +17,12 @@ from constant import GOOGLE, RV, ESPEAK, FESTIVAL
 ## constant for ASR
 from constant import DS, DS2, W2L, WIT
 
-from tts import TTS, Google, ResponsiveVoice, Espeak, Festival, create_tts_by_name
-from asr import ASR, DeepSpeech, DeepSpeech2, Wit, Wav2Letter, create_asr_by_name
+from tts import TTS, create_tts_by_name
+from asr import ASR, create_asr_by_name
+from estimator import create_huggingface_estimator_by_name
 
 from jiwer import wer
 
-from estimator import HuggingFaceTransformer, create_huggingface_estimator_by_name
 
 class CrossASR:
     def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, estimator=None) :
@@ -32,7 +33,8 @@ class CrossASR:
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
-        result_dir = os.path.join(output_dir, "result", tts.getName())
+        asrs_dir = "_".join([asr.getName() for asr in asrs])
+        result_dir = os.path.join(output_dir, "result", tts.getName(), asrs_dir)
         make_dir(result_dir)
         experiment_name = f"with-estimator-{estimator.getName().replace('/','-')}" if estimator else "without-estimator"
         self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
@@ -173,9 +175,8 @@ class CrossASR:
 
                 num_retry += 1
 
-            transcriptions[asr.getName()] = transcription
+            transcriptions[asr.getName()] = preprocess_text(transcription)
 
-            time_for_recognizing_audio_fpath
             ## add execution time for generating audio
             execution_time += get_execution_time(
                 fpath=time_for_recognizing_audio_fpath)    
@@ -229,13 +230,25 @@ class CrossASR:
         processed_texts = []
         cases = []
         num_failed_test_cases = []
+        num_failed_test_cases_per_asr = {}
+        for asr in self.asrs:
+            num_failed_test_cases_per_asr[asr.getName()] = []
         for _ in range(self.num_iteration): 
             processOneIteration(remaining_texts, processed_texts, cases)
             num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
+            for asr in self.asrs :
+                num_failed_test_cases_per_asr[asr.getName()].append(calculate_cases_per_asr(
+                    cases, mode=FAILED_TEST_CASE, asr_name=asr.getName()))
+
+        data = {}
+        data["number_of_failed_test_cases_all"] = num_failed_test_cases
+        data["number_of_failed_test_cases_per_asr"] = num_failed_test_cases_per_asr
+        with open(self.outputfile_failed_test_case + ".json", 'w') as outfile:
+            json.dump(data, outfile)
 
         # print(len(processed_texts))
-        print(num_failed_test_cases[-1])
-        np.save(self.outputfile_failed_test_case, num_failed_test_cases)
+        # print(num_failed_test_cases[-1])
+        # np.save(self.outputfile_failed_test_case, num_failed_test_cases)
 
         ## TODO: 
         # save raw output, 
@@ -262,13 +275,23 @@ class CrossASR:
         
         return texts
         
-def calculate_cases(cases, mode=FAILED_TEST_CASE):
+def calculate_cases(cases, mode:str):
     count = 0
     for c in cases :
         for _, v in c.items() :
             if v == mode :
                 count += 1
     return count
+
+
+def calculate_cases_per_asr(cases, mode:str, asr_name:str):
+    count = 0
+    for c in cases:
+        for k, v in c.items():
+            if k == asr_name and v == mode:
+                count += 1
+    return count
+
 
 def get_labels_from_cases(cases) :
     def determine_label(case) :
