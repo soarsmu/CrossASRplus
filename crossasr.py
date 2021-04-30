@@ -32,9 +32,9 @@ class CrossASR:
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
-        result_dir = os.path.join(output_dir, "result")
+        result_dir = os.path.join(output_dir, "result", tts.getName())
         make_dir(result_dir)
-        experiment_name = f"with-estimator-{estimator.getName()}" if estimator else "without-estimator"
+        experiment_name = f"with-estimator-{estimator.getName().replace('/','-')}" if estimator else "without-estimator"
         self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
         self.recompute = recompute
         self.num_iteration = num_iteration
@@ -127,6 +127,7 @@ class CrossASR:
             text=text, audio_dir=self.audio_dir, filename=filename)
         
         if self.recompute or not os.path.exists(audio_path):
+            print(audio_path)
             start_time = time.time()
             self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
             save_execution_time(
@@ -233,7 +234,7 @@ class CrossASR:
             num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
 
         # print(len(processed_texts))
-        # print(num_failed_test_cases[-1])
+        print(num_failed_test_cases[-1])
         np.save(self.outputfile_failed_test_case, num_failed_test_cases)
 
         ## TODO: 
