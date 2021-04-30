@@ -6,11 +6,13 @@ from utils import save_execution_time, make_dir
 
 from utils import preprocess_text, read_json, set_seed
 
+import constant
+
 ## constant for TTS
 from constant import GOOGLE, RV, ESPEAK, FESTIVAL
 
 ## constant for ASR
-from constant import DS, DS2, W2L, WIT
+from constant import DS, DS2, W2L, WIT, W2V
 
 from constant import DATA_DIR, AUDIO_DIR, TRANSRCRIPTION_DIR, EXECUTION_TIME_DIR
 
@@ -23,8 +25,8 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
     execution_time_dir = os.path.join(execution_time_dir, TRANSRCRIPTION_DIR, tts_name, asr_name)
     make_dir(execution_time_dir)
 
-    # for i in range(13229, 20000):
-    for i in range(0, 1):
+    for i in range(0, 20001):
+    # for i in range(0, 1):
         filename = f"{i}"
 
         print(f"Processing {i}")
@@ -51,7 +53,7 @@ if __name__ == "__main__":
 
     set_seed(config["seed"])
 
-    corpus_path = config["input_corpus"]
+    corpus_path = os.path.join(config["output_dir"], constant.CORPUS_PATH)
     output_dir = config["output_dir"]
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
@@ -59,5 +61,5 @@ if __name__ == "__main__":
     tts_name = RV
     
     # for asr_name in [WIT, W2L, DS, DS2] :
-    for asr_name in [W2L]:
+    for asr_name in [W2V]:
         recognize(tts_name, asr_name, data_dir, execution_time_dir)
