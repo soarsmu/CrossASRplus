@@ -3,9 +3,9 @@ import numpy as np
 import json
 
 import crossasr.constant
-from crossasr.constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
+from crossasr.constant import INDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
 from crossasr.constant import DATA_DIR, EXECUTION_TIME_DIR, CASE_DIR
-from crossasr.constant import AUDIO_DIR, TRANSRCRIPTION_DIR
+from crossasr.constant import AUDIO_DIR, TRANSCRIPTION_DIR
 
 from crossasr.utils import preprocess_text
 from crossasr.utils import make_dir, read_json, save_execution_time, get_execution_time
@@ -23,7 +23,7 @@ class CrossASR:
         self.asrs = asrs
         
         self.audio_dir = os.path.join(output_dir, DATA_DIR, AUDIO_DIR) 
-        self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
+        self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
         self.recompute = recompute
@@ -70,7 +70,7 @@ class CrossASR:
         self.output_dir = output_dir
 
         self.audio_dir = os.path.join(output_dir, DATA_DIR, AUDIO_DIR)
-        self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSRCRIPTION_DIR)
+        self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSCRIPTION_DIR)
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
 
@@ -95,7 +95,7 @@ class CrossASR:
                     case[k] = FAILED_TEST_CASE
         else:
             for k in transcriptions.keys():
-                case[k] = UNDETERMINABLE_TEST_CASE
+                case[k] = INDETERMINABLE_TEST_CASE
 
         return case
 
@@ -139,7 +139,7 @@ class CrossASR:
         transcriptions = {}
         for asr in self.asrs :
             directory = os.path.join(
-                self.execution_time_dir, TRANSRCRIPTION_DIR, self.getTTS().getName(), asr.getName())
+                self.execution_time_dir, TRANSCRIPTION_DIR, self.getTTS().getName(), asr.getName())
             make_dir(directory)
             time_for_recognizing_audio_fpath = os.path.join(
                 directory, filename + ".txt")
@@ -296,8 +296,8 @@ def calculate_cases_per_asr(cases, mode:str, asr_name:str):
 
 def get_labels_from_cases(cases) :
     def determine_label(case) :
-        if UNDETERMINABLE_TEST_CASE in case.values() :
-            return UNDETERMINABLE_TEST_CASE
+        if INDETERMINABLE_TEST_CASE in case.values() :
+            return INDETERMINABLE_TEST_CASE
         if FAILED_TEST_CASE :
             return FAILED_TEST_CASE
         return SUCCESSFUL_TEST_CASE

@@ -3,15 +3,15 @@ import time
 import random
 
 from crossasr.utils import save_execution_time, make_dir, preprocess_text, read_json
-from crossasr.constant import DATA_DIR, AUDIO_DIR, TRANSRCRIPTION_DIR, EXECUTION_TIME_DIR
+from crossasr.constant import DATA_DIR, AUDIO_DIR, TRANSCRIPTION_DIR, EXECUTION_TIME_DIR
 
 from utils import set_seed, create_asr_by_name
 
 def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: str):
     asr = create_asr_by_name(asr_name)
     audio_dir = os.path.join(data_dir, AUDIO_DIR)
-    transcription_dir = os.path.join(data_dir, TRANSRCRIPTION_DIR, tts_name)
-    execution_time_dir = os.path.join(execution_time_dir, TRANSRCRIPTION_DIR, tts_name, asr_name)
+    transcription_dir = os.path.join(data_dir, TRANSCRIPTION_DIR, tts_name)
+    execution_time_dir = os.path.join(execution_time_dir, TRANSCRIPTION_DIR, tts_name, asr_name)
     make_dir(execution_time_dir)
 
     # for i in range(885, 886):
