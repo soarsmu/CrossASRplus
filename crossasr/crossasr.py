@@ -7,7 +7,7 @@ from crossasr.constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FA
 from crossasr.constant import DATA_DIR, EXECUTION_TIME_DIR, CASE_DIR
 from crossasr.constant import AUDIO_DIR, TRANSRCRIPTION_DIR
 
-from crossasr.utils import preprocess_text, create_filename_from_text, set_seed
+from crossasr.utils import preprocess_text
 from crossasr.utils import make_dir, read_json, save_execution_time, get_execution_time
 from text import Text
 
