@@ -3,10 +3,9 @@ import time
 import random
 
 from crossasr.constant import DATA_DIR, AUDIO_DIR, EXECUTION_TIME_DIR
-# from tts import create_tts_by_name
 from crossasr.utils import save_execution_time, make_dir, read_json, set_seed
 
-
+from utils import create_tts_by_name
 
 def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:str):
     tts = create_tts_by_name(tts_name)
@@ -18,7 +17,7 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
 
     i = 1
     # for text in corpus :
-    for i in range(20000, 20001) :
+    for i in range(0, 1) :
         text = corpus[i]
         text = text[:-1]
         filename = f"{i}"
@@ -30,7 +29,7 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
         save_execution_time(fpath=fpath, execution_time=execution_time)
         print(f"Generate {i}")
         i += 1
-        if tts_name in [GOOGLE]:
+        if tts_name in ["google"]:
             random_number = float(random.randint(15, 40))/10.
             time.sleep(random_number)
 
@@ -48,6 +47,6 @@ if __name__ == "__main__" :
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
 
-    tts_name = RV
+    tts_name = "rv"
     generate(tts_name, corpus_path, data_dir, execution_time_dir)
 
