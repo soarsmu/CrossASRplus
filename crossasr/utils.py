@@ -79,16 +79,6 @@ def preprocess_text(text):
     text = remove_multiple_whitespace(text)
     return text
 
-# def set_seed(seed: int) :
-#     random.seed(seed)
-#     np.random.seed(seed)
-    
-#     import torch
-#     torch.manual_seed(seed)
-#     torch.cuda.manual_seed(seed)
-#     torch.backends.cudnn.deterministic = True
-
-
 def read_json(config_path: str):
     with open(config_path, 'r') as f:
         config = json.load(f)
