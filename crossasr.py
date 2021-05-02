@@ -183,11 +183,13 @@ class CrossASR:
             execution_time += get_execution_time(
                 fpath=time_for_recognizing_audio_fpath)    
             
-        # print(transcriptions)
 
         cases = self.caseDeterminer(text, transcriptions)
-        
-        # print(cases)
+        # if sum(cases.values()) == 0 :
+        #     print(text)
+        #     print(transcriptions["wav2vec2"])
+        #     print(cases)
+        #     print()
         
         for asr_name, case in cases.items() :
             self.saveCase(self.case_dir, self.getTTS().getName(), asr_name, filename, str(case))
@@ -216,6 +218,8 @@ class CrossASR:
             
             i = 0
             for text in curr_texts :
+                # print("================")
+                # print(f"{text.getId()}")
                 case, exec_time = self.processText(text=text.getText(), filename=f"{text.getId()}")
                 cases.append(case)
                 execution_time += exec_time
@@ -355,6 +359,13 @@ def test_corpus():
         if config["estimator_type"] == "huggingface":
             kwargs["estimator"] = create_huggingface_estimator_by_name(str(config["estimator"]))
     
+    # for tbs in [400] :
+    #     # for estimator_name in ["albert-base-v2", "facebook/bart-base", "bert-base-cased", "bert-base-uncased", "distilbert-base-uncased"]:
+    #     # for estimator_name in ["valhalla/distilbart-mnli-12-1", "albert-base-v2", "facebook/bart-base", "bert-base-cased", "bert-base-uncased", "distilbert-base-uncased"]:
+    #     for estimator_name in ["xlnet-base-cased", "roberta-base", "gpt2"]:
+    #         kwargs["text_batch_size"] = tbs
+    #         kwargs["estimator"] = create_huggingface_estimator_by_name(estimator_name)
+
     crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
     
     corpus_path = os.path.join(config["output_dir"], constant.CORPUS_PATH)
@@ -362,7 +373,6 @@ def test_corpus():
     corpus = file.readlines()
     texts = []
     i = 1
-    # for text in corpus :
     for text in corpus:
         texts.append(Text(i, text[:-1]))
         i += 1
