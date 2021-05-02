@@ -101,7 +101,7 @@ class HuggingFaceTransformer(Estimator):
         training_args = TrainingArguments(
             output_dir='./results',          # output directory
             num_train_epochs=1,              # total number of training epochs
-            per_device_train_batch_size=16,  # batch size per device during training
+            per_device_train_batch_size=8,  # batch size per device during training
             per_device_eval_batch_size=64,   # batch size for evaluation
             learning_rate=5e-05,
             weight_decay=0.01,               # strength of weight decay
@@ -128,7 +128,7 @@ class HuggingFaceTransformer(Estimator):
             test_texts, truncation=True, padding=True, max_length=self.max_sequence_length)
         test_dataset = HuggingFaceDataset(test_encodings, test_labels)
         test_loader = torch.utils.data.DataLoader(
-            test_dataset, batch_size=32, shuffle=False)
+            test_dataset, batch_size=16, shuffle=False)
 
         res = []
 
