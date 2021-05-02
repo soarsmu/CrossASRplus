@@ -9,7 +9,7 @@ from crossasr.constant import AUDIO_DIR, TRANSRCRIPTION_DIR
 
 from crossasr.utils import preprocess_text
 from crossasr.utils import make_dir, read_json, save_execution_time, get_execution_time
-from text import Text
+from crossasr.text import Text
 
 # ## constant for TTS
 # from constant import GOOGLE, RV, ESPEAK, FESTIVAL
@@ -17,8 +17,8 @@ from text import Text
 # ## constant for ASR
 # from constant import DS, DS2, W2L, WIT
 
-from tts import TTS
-from asr import ASR
+from crossasr.tts import TTS
+from crossasr.asr import ASR
 # from estimator import create_huggingface_estimator_by_name
 
 from jiwer import wer
