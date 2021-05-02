@@ -316,6 +316,7 @@ def get_labels_from_cases(cases) :
     
     return labels
 
+
 # def test(): 
 
 #     json_config_path = "config.json"
