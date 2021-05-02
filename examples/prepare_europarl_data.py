@@ -5,9 +5,8 @@ import pandas as pd
 from datetime import datetime
 import json
 
-import utils
-import constant
-
+from crossasr.utils import preprocess_text, read_json
+from utils import set_seed
 
 def generate_europarl_corpus():
 
@@ -16,7 +15,7 @@ def generate_europarl_corpus():
 
     df = pd.DataFrame([""], columns=["English"])
     fpaths = []
-    for (dirpath, _, filenames) in os.walk(data):
+    for (_, _, filenames) in os.walk(data):
         print(filenames)
         for f in filenames:
             if ".csv" in f:
@@ -46,7 +45,7 @@ def get_sample_data(df, n):
 
 def preprocess_data(df, n):
 
-    clean_df = df["sentence"].apply(utils.preprocess_text)
+    clean_df = df["sentence"].apply(preprocess_text)
 
     # remove empty string
     clean_df = [i for i in clean_df if i and i != ""]
@@ -57,12 +56,12 @@ def preprocess_data(df, n):
 if __name__ == "__main__":
 
     json_config_path = "config.json"
-    config = utils.read_json(json_config_path)
+    config = read_json(json_config_path)
 
     print(config)
     seed = config["seed"]
 
-    utils.set_seed(seed)
+    set_seed(seed)
 
     print("start: " + str(datetime.now()))
 
@@ -100,7 +99,7 @@ if __name__ == "__main__":
     print("write data: " + str(datetime.now()))
 
     # TODO: make the folder first 
-    outfile = os.path.join(config["output_dir"], constant.CORPUS_PATH)
+    outfile = os.path.join(config["output_dir"], config["corpus_fpath"])
 
     file = open(outfile, "w+")
     for s in data:
