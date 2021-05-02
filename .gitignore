@@ -157,4 +157,6 @@ europarl-seed2023/
 
 results/
 
-examples/
+examples/corpus/
+examples/output/
+examples/asr/models/
