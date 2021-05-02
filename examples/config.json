@@ -1,0 +1,21 @@
+{
+    "seed": 2021,
+    "output_dir": "europarl-seed2021/",
+    "corpus_path": "corpus/europarl-20000.txt",
+    "tts" : "google",
+    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
+    "preprocessing" : {
+        "remove_hex" : true,
+        "remove_punctuation": true,
+        "text_normalization" : true,
+        "word_substituion": true
+    },
+    "recompute": false,
+    "time_budget": 3600,
+    "num_iteration": 5,
+    "text_batch_size": 400,
+    "max_num_retry": 0,
+    "estimator": null,
+    "estimator_type": "huggingface",
+    "estimator_config": "albert.json"
+}
