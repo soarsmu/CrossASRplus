@@ -1,5 +1,5 @@
 import os
-from utils import make_dir
+from crossasr.utils import make_dir
 
 # import torch
 # import soundfile as sf

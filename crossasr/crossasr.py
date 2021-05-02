@@ -2,20 +2,20 @@ import os, time, random
 import numpy as np
 import json
 
-import constant
-from constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
-from constant import DATA_DIR, EXECUTION_TIME_DIR, CASE_DIR
-from constant import AUDIO_DIR, TRANSRCRIPTION_DIR
+import crossasr.constant
+from crossasr.constant import UNDETERMINABLE_TEST_CASE, SUCCESSFUL_TEST_CASE, FAILED_TEST_CASE
+from crossasr.constant import DATA_DIR, EXECUTION_TIME_DIR, CASE_DIR
+from crossasr.constant import AUDIO_DIR, TRANSRCRIPTION_DIR
 
-from utils import preprocess_text, create_filename_from_text, set_seed
-from utils import make_dir, read_json, save_execution_time, get_execution_time
+from crossasr.utils import preprocess_text, create_filename_from_text, set_seed
+from crossasr.utils import make_dir, read_json, save_execution_time, get_execution_time
 from text import Text
 
-## constant for TTS
-from constant import GOOGLE, RV, ESPEAK, FESTIVAL
+# ## constant for TTS
+# from constant import GOOGLE, RV, ESPEAK, FESTIVAL
 
-## constant for ASR
-from constant import DS, DS2, W2L, WIT
+# ## constant for ASR
+# from constant import DS, DS2, W2L, WIT
 
 from tts import TTS
 from asr import ASR
