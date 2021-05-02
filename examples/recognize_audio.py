@@ -2,21 +2,10 @@ import os
 import time
 import random
 
-from utils import save_execution_time, make_dir
+from crossasr.utils import save_execution_time, make_dir, preprocess_text, read_json
+from crossasr.constant import DATA_DIR, AUDIO_DIR, TRANSRCRIPTION_DIR, EXECUTION_TIME_DIR
 
-from utils import preprocess_text, read_json, set_seed
-
-import constant
-
-## constant for TTS
-from constant import GOOGLE, RV, ESPEAK, FESTIVAL
-
-## constant for ASR
-from constant import DS, DS2, W2L, WIT, W2V
-
-from constant import DATA_DIR, AUDIO_DIR, TRANSRCRIPTION_DIR, EXECUTION_TIME_DIR
-
-from asr import create_asr_by_name
+from utils import set_seed, create_asr_by_name
 
 def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: str):
     asr = create_asr_by_name(asr_name)
@@ -25,9 +14,9 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
     execution_time_dir = os.path.join(execution_time_dir, TRANSRCRIPTION_DIR, tts_name, asr_name)
     make_dir(execution_time_dir)
 
-    for i in range(885, 886):
+    # for i in range(885, 886):
     # for i in range(0, 20001):
-    # for i in range(0, 1):
+    for i in range(0, 1):
         filename = f"{i}"
 
         print(f"Processing {i}")
@@ -42,7 +31,7 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
         fpath = os.path.join(execution_time_dir, filename + ".txt")
         save_execution_time(fpath=fpath, execution_time=execution_time)
 
-        if asr_name in [WIT]:
+        if asr_name in ["wit"]:
             random_number = float(random.randint(9, 47))/10.
             time.sleep(random_number)
 
@@ -54,13 +43,13 @@ if __name__ == "__main__":
 
     set_seed(config["seed"])
 
-    corpus_path = os.path.join(config["output_dir"], constant.CORPUS_PATH)
+    corpus_path = os.path.join(config["output_dir"], config["corpus_fpath"])
     output_dir = config["output_dir"]
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
 
-    tts_name = GOOGLE
+    tts_name = "rv"
     
-    for asr_name in [WIT, W2L, DS, DS2, W2V] :
-    # for asr_name in [W2V]:
+    # for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
+    for asr_name in ["wit"]:
         recognize(tts_name, asr_name, data_dir, execution_time_dir)
