@@ -108,7 +108,3 @@ class HuggingFaceTransformer(Estimator):
 
         return failed_probability
 
-
-def create_huggingface_estimator_by_name(name: str):
-    # https://huggingface.co/transformers/custom_datasets.html
-    return HuggingFaceTransformer(name=name)
