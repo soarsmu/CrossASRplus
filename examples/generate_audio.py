@@ -3,9 +3,9 @@ import time
 import random
 
 from crossasr.constant import DATA_DIR, AUDIO_DIR, EXECUTION_TIME_DIR
-from crossasr.utils import save_execution_time, make_dir, read_json, set_seed
+from crossasr.utils import save_execution_time, make_dir, read_json
 
-from utils import create_tts_by_name
+from utils import create_tts_by_name, set_seed
 
 def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:str):
     tts = create_tts_by_name(tts_name)
