@@ -43,11 +43,6 @@ def remove_multiple_whitespace(text):
     """
     return re.sub(' +', ' ', text.replace('\n', ' ').replace('\t', ' ')).strip()
 
-
-def remove_punctuation(text):
-    return text.translate(str.maketrans('', '', string.punctuation))
-
-
 def normalize_text(text):
     return " ".join(normalise(text, tokenizer=tokenize_basic, verbose=False))
 
@@ -84,17 +79,14 @@ def preprocess_text(text):
     text = remove_multiple_whitespace(text)
     return text
 
-def create_filename_from_text(text): 
-    return "_".join(text.split(" "))
-
-def set_seed(seed: int) :
-    random.seed(seed)
-    np.random.seed(seed)
+# def set_seed(seed: int) :
+#     random.seed(seed)
+#     np.random.seed(seed)
     
-    import torch
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
+#     import torch
+#     torch.manual_seed(seed)
+#     torch.cuda.manual_seed(seed)
+#     torch.backends.cudnn.deterministic = True
 
 
 def read_json(config_path: str):
