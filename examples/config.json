@@ -1,6 +1,6 @@
 {
     "seed": 2021,
-    "output_dir": "europarl-seed2021/",
+    "output_dir": "output/europarl-seed2021/",
     "corpus_path": "corpus/europarl-20000.txt",
     "tts" : "google",
     "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
