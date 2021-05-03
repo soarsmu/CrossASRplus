@@ -5,6 +5,8 @@ import numpy as np
 import json
 from normalise import normalise, tokenize_basic
 
+from crossasr.text import Text
+
 
 def make_dir(directory):
     if not os.path.exists(directory):
@@ -95,3 +97,13 @@ def get_execution_time(fpath:str) :
     val = f.readlines()[0]
     f.close()
     return float(val)
+
+
+def read_corpus(self, corpus_fpath: str):
+    file = open(corpus_fpath)
+    corpus = file.readlines()
+    texts = []
+    for i, text in enumerate(corpus):
+        texts.append(Text(i, text[:-1]))
+    
+    return texts
