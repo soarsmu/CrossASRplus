@@ -6,7 +6,7 @@ class DeepSpeech(ASR):
         ASR.__init__(self, name="deepspeech")
 
     def recognizeAudio(self, audio_path: str) -> str:
-        cmd = "deepspeech --model models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer models/deepspeech/deepspeech-0.9.3-models.scorer --audio " + audio_path
+        cmd = "deepspeech --model asr_models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer asr_models/deepspeech/deepspeech-0.9.3-models.scorer --audio " + audio_path
 
         proc = subprocess.Popen([cmd], stdout=subprocess.PIPE, shell=True)
         (out, _) = proc.communicate()
