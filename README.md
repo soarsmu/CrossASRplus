@@ -24,7 +24,7 @@ Install CrossASR++ with the following command from the project folder CrossASRv2
 
 To add a TTS, you need to create a class inherited from `TTS` interface. You must override the function for generating an audio.
 
-```
+```python
 class NewTTS(TTS):
   def __init__(self):
     TTS.__init__(self, name="new_TTS")
@@ -36,18 +36,18 @@ class NewTTS(TTS):
 
 To add an ASR, you need to create a class inherited from `ASR` interface. You must override the function for recognizing an audio.
 
-```
+```python
 class NewASR(ASR):
   def __init__(self):
     ASR.__init__(self, name="new_ASR")
   def recognizeAudio(self, audio):
-    # override this function for recogniziting an audio
+    # override this function for recognizing an audio
 ```
 
 ### 3. Adding an Estimator
 
 To add an Estimator, you need to create a class inherited from `Estimator` interface. You must override the function for training and predicting.
-```
+```python
 class NewEstimator(Estimator):
   def __init__(self):
     Estimator.__init__(self,name="new_estimator")
@@ -62,3 +62,7 @@ For each class (TTS, ASR, and Estimator), you **must** define the name of the cl
 ### Folder Structure to Save Data
 
 CrossASR++ automatically save the audio files and their transcriptions (along with their execution times). 
+
+## Real-world Examples
+
+We provide real examples for cross-referencing ASRs in folder [`examples`](). It provides clear instruction on how to create a real TTS, ASR, and Estimator and how to test a specific ASR.
