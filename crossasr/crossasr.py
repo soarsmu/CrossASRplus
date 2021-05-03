@@ -74,14 +74,6 @@ class CrossASR:
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
 
-    def readCorpus(self, corpus_fpath: str) :
-        file = open(corpus_fpath)
-        corpus = file.readlines()
-        texts = []
-        for i, text in enumerate(corpus):
-            texts.append(Text(i, text[:-1]))
-        return texts
-
     def caseDeterminer(self, text:str, transcriptions: str): 
         # word error rate
         wers = {}
