@@ -1,15 +1,25 @@
 # Usage Example of CrossASR++
 
-## Prepare Virtual Environment
+This documention contain several main parts, i.e.:
 
-### 1. Install the Python development environment
+1. [Prepare Environment](##1-prepare-environment)
+2. [Prepare TTSes](##2-prepare-ttses)
+3. [Prepare ASRs](##3-prepare-asrs)
+4. [Prepare Estimator](##4-prepare-estimator)
+5. Usage Scenario for Adding a TTS 
+6. Usage Scenario for Testing a Specific ASR
+7. Usage Scenario for Developing Estimator
+
+## 1. Prepare Environment
+
+### a. Install the Python development environment
 
 ```bash
 sudo apt update
 sudo apt install python3-dev python3-pip python3-venv
 ```
 
-### 2. Create a virtual environment
+### b. Create a virtual environment
 
 Create a new virtual environment by choosing a Python interpreter and making a ./env directory to hold it:
 
@@ -42,7 +52,7 @@ then
 fi
 ```
 
-## Prepare TTSes
+## 2. Prepare TTSes
 
 ### 1. Google
 
@@ -97,7 +107,7 @@ espeak "hello e speak" --stdout > output/audio/espeak/hello.riff
 ffmpeg -i output/audio/espeak/hello.riff  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/espeak/hello.wav -y
 ```
 
-## Prepare ASRs
+## 3. Prepare ASRs
 
 ### 1. Deepspeech
 
@@ -284,3 +294,9 @@ Content-Length: 85
 pip install torch
 pip install transformers
 ```
+
+## 4. Prepare Estimators
+
+## 5. Usage Scenario for Adding a TTS 
+## 6. Usage Scenario for Testing a Specific ASR
+## 7. Usage Scenario for Developing Estimator
