@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 
 from crossasr.utils import preprocess_text, read_json
+from crossasr.utils import make_dir
 from utils import set_seed
 
 def generate_europarl_corpus():
@@ -98,7 +99,12 @@ if __name__ == "__main__":
 
     print("write data: " + str(datetime.now()))
 
-    # TODO: make the folder first 
+    # prepare folder to save the data
+    directory = config["output_dir"]
+    if len(config["corpus_fpath"].split("/")) > 1 :
+        directory = os.path.join(directory, "/".join(config["corpus_fpath"].split("/")[:-1]))
+    make_dir(directory)
+    
     outfile = os.path.join(config["output_dir"], config["corpus_fpath"])
 
     file = open(outfile, "w+")
