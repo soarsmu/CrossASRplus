@@ -1,44 +1,42 @@
-# def test():
-#     text = "hello world!"
-#     audio_dir = "data/audio/"
+import os 
+from crossasr.utils import preprocess_text
+from utils import create_tts_by_name
+from utils import create_asr_by_name
+from utils import create_huggingface_estimator_by_name
 
-#     text = preprocess_text(text)
-#     filename = create_filename_from_text(text)
+def create_filename_from_text(s) :
+    return "_".join(s.split())
 
-#     ttses = [GOOGLE, RV, ESPEAK, FESTIVAL]
 
-#     for tts_name in ttses :
-#         tts = create_tts_by_name(tts_name)
-#         tts.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
+def tts_test():
+    audio_dir = "output/data/audio/"
+    
+    text = "hello world!"
+    text = preprocess_text(text)
+    filename = "hello_world"
 
-# if __name__ == "__main__":
-#     test()
+    # ttses = ["google", "rv", "espeak", "festival"]
+    ttses = ["google"]
 
-# def test():
-#     audio_dir = "data/audio/"
-#     transcription_dir = "data/transcription/"
+    for tts_name in ttses :
+        tts = create_tts_by_name(tts_name)
+        tts.generateAudio(text=text, audio_dir=audio_dir, filename=filename)
 
-#     tts_name = GOOGLE
-#     filename = "hello_world"
+def asr_test():
+    audio_dir = "output/data/audio/"
+    transcription_dir = "output/data/transcription/"
 
-#     audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
-#     transcription_dir = os.path.join(transcription_dir, tts_name)
+    tts_name = "google"
+    filename = "hello_world"
 
-#     # ds = create_asr_by_name(DS)
-#     # ds.recognizeAudio(audio_path=audio_path)
-#     # ds.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+    audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
+    transcription_dir = os.path.join(transcription_dir, tts_name)
 
-#     # ds2 = create_asr_by_name(DS2)
-#     # ds2.recognizeAudio(audio_path=audio_path)
-#     # ds2.saveTranscription(transcription_dir=transcription_dir, filename=filename)
+    for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
+        asr = create_asr_by_name(asr_name)
+        asr.recognizeAudio(audio_path=audio_path)
+        asr.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
-#     # wit = create_asr_by_name(WIT)
-#     # wit.recognizeAudio(audio_path=audio_path)
-#     # wit.saveTranscription(transcription_dir=transcription_dir, filename=filename)
-
-#     w2l = create_asr_by_name(W2L)
-#     w2l.recognizeAudio(audio_path=audio_path)
-#     w2l.saveTranscription(transcription_dir=transcription_dir, filename=filename)
-
-# if __name__ == "__main__":
-#     test()
+if __name__ == "__main__":
+    # tts_test()
+    asr_test()
