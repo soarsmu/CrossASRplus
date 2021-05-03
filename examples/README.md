@@ -1,4 +1,4 @@
-# Example Usage of CrossASR++
+# Usage Example of CrossASR++
 
 ## Prepare Virtual Environment
 
