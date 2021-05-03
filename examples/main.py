@@ -2,7 +2,11 @@ import os
 import numpy as np
 import json
 
-from crossasr.utils import read_json, preprocess_text
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=UserWarning)
+
+from crossasr.utils import read_json, preprocess_text, read_corpus
 from crossasr import Text, CrossASR
 
 from utils import set_seed, create_tts_by_name, create_asr_by_name, create_huggingface_estimator_by_name
@@ -60,14 +64,15 @@ def test_corpus():
 
     crossasr = CrossASR(tts=tts, asrs=asrs, output_dir=config["output_dir"], **kwargs)
 
-    corpus_path = os.path.join(config["output_dir"], config["corpus_fpath"])
-    file = open(corpus_path)
+    corpus_fpath = os.path.join(config["output_dir"], config["corpus_fpath"])
+    file = open(corpus_fpath)
     corpus = file.readlines()
     texts = []
     i = 1
     for text in corpus:
         texts.append(Text(i, text[:-1]))
         i += 1
+    # texts = read_corpus(corpus_fpath=corpus_fpath)
     crossasr.processCorpus(texts=texts)
 
 
