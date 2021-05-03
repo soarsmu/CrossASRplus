@@ -4,7 +4,7 @@
 
 ### 1. Install the Python development environment
 
-```
+```bash
 sudo apt update
 sudo apt install python3-dev python3-pip python3-venv
 ```
@@ -13,13 +13,13 @@ sudo apt install python3-dev python3-pip python3-venv
 
 Create a new virtual environment by choosing a Python interpreter and making a ./env directory to hold it:
 
-```
+```bash
 python3 -m venv --system-site-packages ~/./env
 ```
 
 Activate the virtual environment using a shell-specific command:
 
-```
+```bash
 source ~/./env/bin/activate  # sh, bash, or zsh
 
 bash install_requirement.sh
@@ -30,7 +30,7 @@ bash install_requirement.sh
 
 Make a folder to save the output
 
-```
+```bash
 if [ ! -d "output/" ]
 then
     mkdir output/
@@ -48,12 +48,12 @@ fi
 
 We use [gTTS](https://pypi.org/project/gTTS/) (Google Text-to-Speech), a Python library and CLI tool to interface with Google Translate text-to-speech API. CrossASRv2 use gTTS 2.2.2
 
-```
+```bash
 pip install gTTS
 ```
 
 #### Trial
-```
+```bash
 mkdir output/audio/google/
 gtts-cli 'hello world google' --output output/audio/google/hello.mp3
 ffmpeg -i output/audio/google/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/google/hello.wav -y
@@ -63,12 +63,12 @@ ffmpeg -i output/audio/google/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 outpu
 
 We use [rvTTS](https://pypi.org/project/rvtts/), a cli tool for converting text to mp3 files using ResponsiveVoice's API. CrossASRv2 uses rvtts 1.0.1
 
-```
+```bash
 pip install rvtts
 ```
 
 #### Trial
-```
+```bash
 mkdir output/audio/rv/
 rvtts --voice english_us_male --text "hello responsive voice trial" -o output/audio/rv/hello.mp3
 ffmpeg -i output/audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/rv/hello.wav -y
@@ -79,7 +79,7 @@ ffmpeg -i output/audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/au
 [Festival](http://www.cstr.ed.ac.uk/projects/festival/) is a free TTS written in C++. It is developed by The Centre for Speech Technology Research at the University of Edinburgh. Festival are distributed under an X11-type licence allowing unrestricted commercial and non-commercial use alike. Festival is a command-line program that already installed on Ubuntu 16.04. CrossASRv2 uses Festival 2.5.0
 
 #### Trial
-```
+```bash
 sudo apt install festival -y
 mkdir output/audio/festival/
 festival -b "(utt.save.wave (SayText \"hello festival \") \"output/audio/festival/hello.wav\" 'riff)"
@@ -89,7 +89,7 @@ festival -b "(utt.save.wave (SayText \"hello festival \") \"output/audio/festiva
 
 [eSpeak](http://espeak.sourceforge.net/) is a compact open source software speech synthesizer for English and other languages. CrossASRv2 uses Espeak 1.48.03
 
-```
+```bash
 sudo apt install espeak -y
 
 mkdir output/audio/espeak/
@@ -103,7 +103,7 @@ ffmpeg -i output/audio/espeak/hello.riff  -acodec pcm_s16le -ac 1 -ar 16000 outp
 
 [DeepSpeech](https://github.com/mozilla/DeepSpeech) is an open source Speech-To-Text engine, using a model trained by machine learning techniques based on [Baidu's Deep Speech research paper](https://arxiv.org/abs/1412.5567). **CrossASR++ uses [Deepspeech-0.9.3](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)**
 
-```
+```bash
 pip install deepspeech===0.9.3
 
 if [ ! -d "asr_models/" ]
@@ -122,7 +122,7 @@ cd ../../
 Please follow [this link for more detailed installation](https://github.com/mozilla/DeepSpeech/tree/v0.9.3).
 
 #### Trial
-```
+```bash
 deepspeech --model asr_models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer asr_models/deepspeech/deepspeech-0.9.3-models.scorer --audio output/audio/google/hello.wav
 ```
 
@@ -134,7 +134,7 @@ deepspeech --model asr_models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer a
 
 [Original Source](https://github.com/PaddlePaddle/DeepSpeech#running-in-docker-container)
 
-```
+```bash
 cd asr_models/
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
@@ -162,7 +162,7 @@ apt-get install libsndfile1-dev -y
 **in case you found error when running the `setup.sh`**
 
 Error solution for `ImportError: No module named swig_decoders`
-```
+```bash
 pip install paddlepaddle-gpu==1.6.2.post107
 cd DeepSpeech
 pip install soundfile
@@ -185,7 +185,7 @@ cd ../../
 ```
 
 #### Run Deepspeech2 as an API (inside docker container)
-```
+```bash
 pip install flask 
 
 # run inside /DeepSpeech folder in the container
@@ -199,7 +199,7 @@ Then detach from the docker using ctrl+p & ctrl+q after you see `Running on http
 
 #### Run Client from the Terminal (outside docker container)
 
-```
+```bash
 # run from examples folder in the host machine (outside docker)
 docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=output/audio/google/hello.wav
 ```
@@ -210,7 +210,7 @@ docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=output/a
 
 Please find the lastest image of [wav2letter's docker](https://hub.docker.com/r/wav2letter/wav2letter/tags).
 
-```
+```bash
 cd asr_models/
 mkdir wav2letter
 cd wav2letter
@@ -222,7 +222,7 @@ cd ../../
 ```
 
 #### Run docker inference API
-```
+```bash
 # run from examples folder
 docker run --name wav2letter -it --rm -v $(pwd)/output/:/root/host/output/ -v $(pwd)/asr_models/:/root/host/models/ --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest
 ```
@@ -230,7 +230,7 @@ Then detach from the docker using ctrl+p & ctrl+q
 
 #### Run Client from the Terminal
 
-```
+```bash
 docker exec -it wav2letter sh -c "cat /root/host/output/audio/google/hello.wav | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/models/wav2letter/"
 ```
 
@@ -241,17 +241,17 @@ Detail of [wav2letter++ installation](https://github.com/facebookresearch/wav2le
 [Wit](https://wit.ai/) gives an API interface for ASR. We use [pywit](https://github.com/wit-ai/pywit), the Python SDK for Wit. You need to create an WIT account to get access token. CrossASRv2 uses Wit 6.0.0
 
 #### install pywit
-```
+```bash
 pip install wit
 ```
 
 #### Setup Wit access token
-```
+```bash
 export WIT_ACCESS_TOKEN=<your Wit access token>
 ```
 
 #### Check using HTTP API
-```
+```bash
 curl -XPOST 'https://api.wit.ai/speech?' \
     -i -L \
     -H "Authorization: Bearer $WIT_ACCESS_TOKEN" \
@@ -260,7 +260,7 @@ curl -XPOST 'https://api.wit.ai/speech?' \
 ```
 
 **Success Response**
-```
+```bash
 HTTP/1.1 100 Continue
 Date: Fri, 11 Sep 2020 05:55:51 GMT
 
@@ -280,7 +280,7 @@ Content-Length: 85
 
 ### 5. Wav2Vec2
 
-```
+```bash
 pip install torch
 pip install transformers
 ```
