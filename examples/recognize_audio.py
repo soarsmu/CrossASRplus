@@ -16,7 +16,7 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
 
     # for i in range(885, 886):
     # for i in range(0, 20001):
-    for i in range(0, 1):
+    for i in range(0, 3):
         filename = f"{i}"
 
         print(f"Processing {i}")
@@ -48,8 +48,8 @@ if __name__ == "__main__":
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
 
-    tts_name = "rv"
+    tts_name = config["tts"]
     
     # for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
-    for asr_name in ["wit"]:
+    for asr_name in ["deepspeech2"]:
         recognize(tts_name, asr_name, data_dir, execution_time_dir)
