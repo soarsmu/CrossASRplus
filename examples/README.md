@@ -1,12 +1,8 @@
-# CrossASRv2
-A Modular Framework Inspired from CrossASR Idea
-
-
+# Example Usage of CrossASR++
 
 ## Prepare Virtual Environment
 
-
-### 1. Install the Python development environment on your system
+### 1. Install the Python development environment
 
 ```
 sudo apt update
@@ -25,10 +21,28 @@ Activate the virtual environment using a shell-specific command:
 
 ```
 source ~/./env/bin/activate  # sh, bash, or zsh
+
+bash install_requirement.sh
 ```
 
 
-## TTSes
+### Preparation
+
+Make a folder to save the output
+
+```
+if [ ! -d "output/" ]
+then
+    mkdir output/
+fi
+
+if [ ! -d "output/audio/" ]
+then
+    mkdir output/audio/
+fi
+```
+
+## Prepare TTSes
 
 ### 1. Google
 
@@ -40,14 +54,9 @@ pip install gTTS
 
 #### Trial
 ```
-if [ ! -d "audio/" ]
-then 
-    mkdir audio
-fi
-
-mkdir audio/google/
-gtts-cli 'hello world google' --output audio/google/hello.mp3
-ffmpeg -i audio/google/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 audio/google/hello.wav -y
+mkdir output/audio/google/
+gtts-cli 'hello world google' --output output/audio/google/hello.mp3
+ffmpeg -i output/audio/google/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/google/hello.wav -y
 ```
 
 ### 2. ResponsiveVoice
@@ -60,9 +69,9 @@ pip install rvtts
 
 #### Trial
 ```
-mkdir audio/rv/
-rvtts --voice english_us_male --text "hello responsive voice trial" -o audio/rv/hello.mp3
-ffmpeg -i audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 audio/rv/hello.wav -y
+mkdir output/audio/rv/
+rvtts --voice english_us_male --text "hello responsive voice trial" -o output/audio/rv/hello.mp3
+ffmpeg -i output/audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/rv/hello.wav -y
 ```
 
 ### 3. Festival
@@ -71,9 +80,9 @@ ffmpeg -i audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 audio/rv/hello.w
 
 #### Trial
 ```
-sudo apt install festival
-mkdir audio/festival/
-festival -b "(utt.save.wave (SayText \"hello festival \") \"audio/festival/hello.wav\" 'riff)"
+sudo apt install festival -y
+mkdir output/audio/festival/
+festival -b "(utt.save.wave (SayText \"hello festival \") \"output/audio/festival/hello.wav\" 'riff)"
 ```
 
 ### 4. Espeak
@@ -81,41 +90,40 @@ festival -b "(utt.save.wave (SayText \"hello festival \") \"audio/festival/hello
 [eSpeak](http://espeak.sourceforge.net/) is a compact open source software speech synthesizer for English and other languages. CrossASRv2 uses Espeak 1.48.03
 
 ```
-sudo apt install espeak
+sudo apt install espeak -y
 
-mkdir audio/espeak/
-espeak "hello e speak" --stdout > audio/espeak/hello.riff
-ffmpeg -i audio/espeak/hello.riff  -acodec pcm_s16le -ac 1 -ar 16000 audio/espeak/hello.wav -y
+mkdir output/audio/espeak/
+espeak "hello e speak" --stdout > output/audio/espeak/hello.riff
+ffmpeg -i output/audio/espeak/hello.riff  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/espeak/hello.wav -y
 ```
 
-
-## ASRs
+## Prepare ASRs
 
 ### 1. Deepspeech
 
-[DeepSpeech](https://github.com/mozilla/DeepSpeech) is an open source Speech-To-Text engine, using a model trained by machine learning techniques based on [Baidu's Deep Speech research paper](https://arxiv.org/abs/1412.5567). **CrossASR uses [Deepspeech-0.6.1](https://github.com/mozilla/DeepSpeech/tree/v0.6.1)**
+[DeepSpeech](https://github.com/mozilla/DeepSpeech) is an open source Speech-To-Text engine, using a model trained by machine learning techniques based on [Baidu's Deep Speech research paper](https://arxiv.org/abs/1412.5567). **CrossASR++ uses [Deepspeech-0.9.3](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)**
 
 ```
-pip install deepspeech===0.6.1
+pip install deepspeech===0.9.3
 
-if [ ! -d "models/" ]
+if [ ! -d "asr_models/" ]
 then 
-    mkdir models
+    mkdir asr_models
 fi
 
-cd models
+cd asr_models
 mkdir deepspeech
 cd deepspeech 
-curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz
-tar xvf deepspeech-0.6.1-models.tar.gz
+curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm
+curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer
 cd ../../
 ```
 
-Please follow [this link for more detailed installation](https://github.com/mozilla/DeepSpeech/tree/v0.6.1).
+Please follow [this link for more detailed installation](https://github.com/mozilla/DeepSpeech/tree/v0.9.3).
 
 #### Trial
 ```
-deepspeech --model models/deepspeech/deepspeech-0.6.1-models/output_graph.pbmm --lm models/deepspeech/deepspeech-0.6.1-models/lm.binary --trie models/deepspeech/deepspeech-0.6.1-models/trie --audio audio/google/hello.wav
+deepspeech --model asr_models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer asr_models/deepspeech/deepspeech-0.9.3-models.scorer --audio output/audio/google/hello.wav
 ```
 
 ### 2. Deepspeech2
@@ -127,21 +135,22 @@ deepspeech --model models/deepspeech/deepspeech-0.6.1-models/output_graph.pbmm -
 [Original Source](https://github.com/PaddlePaddle/DeepSpeech#running-in-docker-container)
 
 ```
-cd models/
+cd asr_models/
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
 git checkout tags/v1.1
-cp deepspeech2_api.py DeepSpeech/
-cd DeepSpeech/models/librispeech/
+cp ../../asr/deepspeech2_api.py .
+cd models/librispeech/
 sh download_model.sh
 cd ../../../../
-cd models/DeepSpeech/models/lm
+cd asr_models/DeepSpeech/models/lm
 sh download_lm_en.sh
 cd ../../../../
 docker pull paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7
 
+# run this command from examples folder
 # please remove --gpus '"device=1"' if you only have one gpu
-docker run --name deepspeech2 --rm --gpus '"device=1"' -it -v $(pwd)/models/DeepSpeech:/DeepSpeech -v $(pwd)/europarl/:/DeepSpeech/europarl/  paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7 /bin/bash
+docker run --name deepspeech2 --rm --gpus '"device=1"' -it -v $(pwd)/asr_models/DeepSpeech:/DeepSpeech -v $(pwd)/output/:/DeepSpeech/output/  paddlepaddle/paddle:1.6.2-gpu-cuda10.0-cudnn7 /bin/bash
 
 apt-get update
 apt-get install git -y
@@ -179,7 +188,8 @@ cd ../../
 ```
 pip install flask 
 
-CUDA_VISIBLE_DEVICES=0 python deepspeech2-api.py \
+# run inside /DeepSpeech folder in the container
+CUDA_VISIBLE_DEVICES=0 python deepspeech2_api.py \
     --mean_std_path='models/librispeech/mean_std.npz' \
     --vocab_path='models/librispeech/vocab.txt' \
     --model_path='models/librispeech' \
@@ -190,7 +200,8 @@ Then detach from the docker using ctrl+p & ctrl+q after you see `Running on http
 #### Run Client from the Terminal (outside docker container)
 
 ```
-docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=audio/google/hello.wav
+# run from examples folder in the host machine (outside docker)
+docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=output/audio/google/hello.wav
 ```
 
 ### 3. Wav2letter++
@@ -200,7 +211,7 @@ docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=audio/go
 Please find the lastest image of [wav2letter's docker](https://hub.docker.com/r/wav2letter/wav2letter/tags).
 
 ```
-cd models/
+cd asr_models/
 mkdir wav2letter
 cd wav2letter
 
@@ -212,18 +223,18 @@ cd ../../
 
 #### Run docker inference API
 ```
-docker run --name wav2letter -it --rm -v $(pwd)/europarl/:/root/host/europarl/ -v $(pwd)/models/:/root/host/models/ --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest
+# run from examples folder
+docker run --name wav2letter -it --rm -v $(pwd)/output/:/root/host/output/ -v $(pwd)/asr_models/:/root/host/models/ --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest
 ```
 Then detach from the docker using ctrl+p & ctrl+q 
 
 #### Run Client from the Terminal
 
 ```
-docker exec -it wav2letter sh -c "cat /root/host/audio/google/hello.wav | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/models/wav2letter/"
+docker exec -it wav2letter sh -c "cat /root/host/output/audio/google/hello.wav | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/models/wav2letter/"
 ```
 
 Detail of [wav2letter++ installation](https://github.com/facebookresearch/wav2letter/wiki#Installation) and [wav2letter++ inference](https://github.com/facebookresearch/wav2letter/wiki/Inference-Run-Examples)
-
 
 ### 4. Wit
 
@@ -245,7 +256,7 @@ curl -XPOST 'https://api.wit.ai/speech?' \
     -i -L \
     -H "Authorization: Bearer $WIT_ACCESS_TOKEN" \
     -H "Content-Type: audio/wav" \
-    --data-binary "@audio/google/hello.wav"
+    --data-binary "@output/audio/google/hello.wav"
 ```
 
 **Success Response**
@@ -267,7 +278,9 @@ Content-Length: 85
 }
 ```
 
-#### Trial
+### 5. Wav2Vec2
+
 ```
-python models/wit_trial.py
+pip install torch
+pip install transformers
 ```
