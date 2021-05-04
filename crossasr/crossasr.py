@@ -24,6 +24,9 @@ class CrossASR:
         
         self.audio_dir = os.path.join(output_dir, DATA_DIR, AUDIO_DIR) 
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSCRIPTION_DIR)
+        self.init_directory()
+        
+        ## TODO: make init directory for execution time and case
         self.execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
         self.case_dir = os.path.join(output_dir, CASE_DIR)
         self.recompute = recompute
@@ -33,12 +36,23 @@ class CrossASR:
         self.text_batch_size = text_batch_size
         self.estimator = estimator
 
-        asrs_dir = "_".join([asr.getName() for asr in asrs])
-        result_dir = os.path.join(output_dir, "result", tts.getName(), asrs_dir, f"text_batch_size_{text_batch_size}")
-        make_dir(result_dir)
-        experiment_name = f"with-estimator-{estimator.getName().replace('/','-')}" if estimator else "without-estimator"
-        self.outputfile_failed_test_case = os.path.join(result_dir, experiment_name)
+
+        self.outputfile_failed_test_case = self.get_outputfile_for_failed_test_case()
         
+    def init_directory(self) :
+        # init directory for save the audio
+        make_dir(os.path.join(self.audio_dir, self.tts.getName()))
+
+        # init directory for save the transcription
+        for asr in self.asrs :
+            make_dir(os.path.join(self.transcription_dir, self.tts.getName(), asr.getName()))
+
+    def get_outputfile_for_failed_test_case(self) :
+        asrs_dir = "_".join([asr.getName() for asr in self.asrs])
+        result_dir = os.path.join(self.output_dir, "result", self.tts.getName(), asrs_dir, f"text_batch_size_{self.text_batch_size}")
+        make_dir(result_dir)
+        experiment_name = f"with-estimator-{self.estimator.getName().replace('/','-')}" if self.estimator else "without-estimator"
+        return os.path.join(result_dir, experiment_name)
 
 
     def getTTS(self) :
@@ -111,8 +125,10 @@ class CrossASR:
         """
         Run CrossASR on a single text
         Description: Given a sentence as input, the program will generate a test case. The program needs some parameters, i.e. a TTS and ASRs used
-        params:
-        return:
+        :params text:
+        :params filename:
+        :returns case:
+        :returns execution time:
         """
         execution_time = 0.
 
@@ -120,15 +136,14 @@ class CrossASR:
         make_dir(directory)
         time_for_generating_audio_fpath = os.path.join(directory, filename + ".txt")
         
-        audio_path = self.getTTS().getAudioPath(
+        audio_fpath = self.getTTS().getAudioPath(
             text=text, audio_dir=self.audio_dir, filename=filename)
         
-        if self.recompute or not os.path.exists(audio_path):
-            print(audio_path)
+        if self.recompute or not os.path.exists(audio_fpath):
+            # print(audio_fpath)
             start_time = time.time()
-            self.getTTS().generateAudio(text=text, audio_dir=self.audio_dir, filename=filename)
-            save_execution_time(
-                fpath=time_for_generating_audio_fpath, execution_time=time.time() - start_time)
+            self.getTTS().generateAudio(text=text, audio_fpath=audio_fpath)
+            save_execution_time(fpath=time_for_generating_audio_fpath, execution_time=time.time() - start_time)
         
         ## add execution time for generating audio
         execution_time += get_execution_time(
@@ -146,7 +161,7 @@ class CrossASR:
 
             if self.recompute :
                 start_time = time.time()
-                asr.recognizeAudio(audio_path=audio_path)
+                asr.recognizeAudio(audio_path=audio_fpath)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
@@ -156,7 +171,7 @@ class CrossASR:
             num_retry = 0
             while transcription == "" and num_retry < self.max_num_retry :
                 start_time = time.time()
-                asr.recognizeAudio(audio_path=audio_path)
+                asr.recognizeAudio(audio_path=audio_fpath)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(
