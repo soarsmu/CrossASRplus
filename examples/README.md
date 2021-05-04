@@ -5,10 +5,11 @@ This documention contain several main parts, i.e.:
 1. [Prepare Environment](##1-prepare-environment)
 2. [Prepare TTSes](##2-prepare-ttses)
 3. [Prepare ASRs](##3-prepare-asrs)
-4. [Prepare Estimator](##4-prepare-estimator)
-5. Usage Scenario for Adding a TTS 
-6. Usage Scenario for Testing a Specific ASR
-7. Usage Scenario for Developing Estimator
+4. [Prepare Failure Estimator](##4-prepare-failure-estimator)
+5. [Usage Scenario for Adding TTS, ASR, and Estimator](##5-usage-scenario-for-adding-tts-asr-and-estimator)
+6. [Runnning CrossASR++ with the Same Setting with CrossASR](##6-runnning-crossasr++-with-the-same-setting-with-crossasr)
+7. [Usage Scenario for Testing a Specific ASR](##7-usage-scenario-for-testing-a-specific-asr)
+8. [Usage Scenario for Running Using another Estimator from HuggingFace](##8-usage-scenario-for-running-using-another-estimator-from-huggingface)
 
 ## 1. Prepare Environment
 
@@ -288,7 +289,7 @@ Content-Length: 85
 }
 ```
 
-## 4. Prepare Failure Estimators
+## 4. Prepare Failure Estimator
 
 ### 4.1. HuggingFace Estimator
 
@@ -300,7 +301,7 @@ pip install transformers
 ```
 
 
-## 5. Usage Scenario for Adding a TTS, ASR, and Estimator
+## 5. Usage Scenario for Adding TTS, ASR, and Estimator
 
 
 ### 5.1. Creating ResponsiveVoice TTS
@@ -478,7 +479,7 @@ def get_estimator_pool() :
 The function `get_estimator_pool` will be called from the CrossASR++ main program. We can easily use another estimator from HuggingFace by replacing `albert-base-v2` into another model, e.g. `bert-base-uncased`. 
 
 
-## 5. Runnning CrossASR++ with the Same Setting with CrossASR
+## 6. Runnning CrossASR++ with the Same Setting with CrossASR
 
 The available TTS are ResponsiveVoice, Google, Espeak, and Festival. The available ASR are DeepSpeech, DeepSpeech2, Wav2Letter++, and Wit. The estimator used in CrossASR is ALBERT-base-v2.
 
@@ -500,7 +501,7 @@ python run_crossasr.py --config config.json
 
 This program will generate test cases for all ASRs in the folder located in the `output_dir` specified in the `config.json`. In the `output_dir` there will be `data` folder to save the audio files and their transcriptions, `execution_time` folder to save the execution time for generating audio files and recognizing them, `cases` folder to save the cases status, i.e. failed test cases, succesfull test cases, and indeterminable test cases.
 
-## 6. Usage Scenario for Testing a Specific ASR
+## 7. Usage Scenario for Testing a Specific ASR
 
 Recently, researchers from AI community published a new transformer based ASR, Wav2Vec2. Here the step to add Wav2Vec2 into our pipeline
 
@@ -555,7 +556,7 @@ Run the program
 python run_crossasr.py --config config.json
 ``` 
 
-## 7. Usage Scenario for Running Using another Estimator from HuggingFace
+## 8. Usage Scenario for Running Using another Estimator from HuggingFace
 
 Estimators from HuggingFace are customizable easily. We only need to change `estimator` in the `config.json` with another thousands models available at https://huggingface.co/models.
 ```json
