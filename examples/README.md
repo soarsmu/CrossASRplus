@@ -12,14 +12,14 @@ This documention contain several main parts, i.e.:
 
 ## 1. Prepare Environment
 
-### a. Install the Python development environment
+### 1.1. Install the Python development environment
 
 ```bash
 sudo apt update
 sudo apt install python3-dev python3-pip python3-venv
 ```
 
-### b. Create a virtual environment
+### 1.2. Create a virtual environment
 
 Create a new virtual environment by choosing a Python interpreter and making a ./env directory to hold it:
 
@@ -54,7 +54,7 @@ fi
 
 ## 2. Prepare TTSes
 
-### 1. Google
+### 2.1. Google
 
 We use [gTTS](https://pypi.org/project/gTTS/) (Google Text-to-Speech), a Python library and CLI tool to interface with Google Translate text-to-speech API. CrossASRv2 use gTTS 2.2.2
 
@@ -69,7 +69,7 @@ gtts-cli 'hello world google' --output output/audio/google/hello.mp3
 ffmpeg -i output/audio/google/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/google/hello.wav -y
 ```
 
-### 2. ResponsiveVoice
+### 2.2. ResponsiveVoice
 
 We use [rvTTS](https://pypi.org/project/rvtts/), a cli tool for converting text to mp3 files using ResponsiveVoice's API. CrossASRv2 uses rvtts 1.0.1
 
@@ -84,7 +84,7 @@ rvtts --voice english_us_male --text "hello responsive voice trial" -o output/au
 ffmpeg -i output/audio/rv/hello.mp3  -acodec pcm_s16le -ac 1 -ar 16000 output/audio/rv/hello.wav -y
 ```
 
-### 3. Festival
+### 2.3. Festival
 
 [Festival](http://www.cstr.ed.ac.uk/projects/festival/) is a free TTS written in C++. It is developed by The Centre for Speech Technology Research at the University of Edinburgh. Festival are distributed under an X11-type licence allowing unrestricted commercial and non-commercial use alike. Festival is a command-line program that already installed on Ubuntu 16.04. CrossASRv2 uses Festival 2.5.0
 
@@ -95,7 +95,7 @@ mkdir output/audio/festival/
 festival -b "(utt.save.wave (SayText \"hello festival \") \"output/audio/festival/hello.wav\" 'riff)"
 ```
 
-### 4. Espeak
+### 2.4. Espeak
 
 [eSpeak](http://espeak.sourceforge.net/) is a compact open source software speech synthesizer for English and other languages. CrossASRv2 uses Espeak 1.48.03
 
@@ -109,7 +109,7 @@ ffmpeg -i output/audio/espeak/hello.riff  -acodec pcm_s16le -ac 1 -ar 16000 outp
 
 ## 3. Prepare ASRs
 
-### 1. Deepspeech
+### 3.1. Deepspeech
 
 [DeepSpeech](https://github.com/mozilla/DeepSpeech) is an open source Speech-To-Text engine, using a model trained by machine learning techniques based on [Baidu's Deep Speech research paper](https://arxiv.org/abs/1412.5567). **CrossASR++ uses [Deepspeech-0.9.3](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)**
 
@@ -136,7 +136,7 @@ Please follow [this link for more detailed installation](https://github.com/mozi
 deepspeech --model asr_models/deepspeech/deepspeech-0.9.3-models.pbmm --scorer asr_models/deepspeech/deepspeech-0.9.3-models.scorer --audio output/audio/google/hello.wav
 ```
 
-### 2. Deepspeech2
+### 3.2. Deepspeech2
 
 [DeepSpeech2](https://github.com/PaddlePaddle/DeepSpeech) is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform.
 
@@ -214,7 +214,7 @@ Then detach from the docker using ctrl+p & ctrl+q after you see `Running on http
 docker exec -it deepspeech2 curl http://localhost:5000/transcribe?fpath=output/audio/google/hello.wav
 ```
 
-### 3. Wav2letter++
+### 3.3. Wav2letter++
 
 [wav2letter++](https://github.com/facebookresearch/wav2letter) is a highly efficient end-to-end automatic speech recognition (ASR) toolkit written entirely in C++ by Facebook Research, leveraging ArrayFire and flashlight.
 
@@ -246,7 +246,7 @@ docker exec -it wav2letter sh -c "cat /root/host/output/audio/google/hello.wav |
 
 Detail of [wav2letter++ installation](https://github.com/facebookresearch/wav2letter/wiki#Installation) and [wav2letter++ inference](https://github.com/facebookresearch/wav2letter/wiki/Inference-Run-Examples)
 
-### 4. Wit
+### 3.4. Wit
 
 [Wit](https://wit.ai/) gives an API interface for ASR. We use [pywit](https://github.com/wit-ai/pywit), the Python SDK for Wit. You need to create an WIT account to get access token. CrossASRv2 uses Wit 6.0.0
 
@@ -288,15 +288,281 @@ Content-Length: 85
 }
 ```
 
-### 5. Wav2Vec2
+## 4. Prepare Failure Estimators
+
+### 4.1. HuggingFace Estimator
+
+HuggingFace provides thousands pretrained language model for NLP tasks. HuggingFace hosts SOTA language models. People continuesly add their pretrained models to HuggingFace. Thus it help us in developing good estimator fast and catch up with the latest SOTA models. HuggingFace library is available at `transformers` PyPi.
 
 ```bash
 pip install torch
 pip install transformers
 ```
 
-## 4. Prepare Estimators
 
-## 5. Usage Scenario for Adding a TTS 
+## 5. Usage Scenario for Adding a TTS, ASR, and Estimator
+
+
+### 5.1. Creating ResponsiveVoice TTS
+User can add a new TTS by defining a class derived from `TTS` interface. The steps for 
+
+**Defining Class**
+```python
+class ResponsiveVoice(TTS):
+
+    def __init__(self):
+        TTS.__init__(self, name="rv")
+
+    def generateAudio(self, text: str, audio_dir: str, filename: str) -> str:
+        base_dir = os.getcwd()
+        tts_dir = os.path.join(base_dir, audio_dir, self.name)
+        make_dir(tts_dir) # make a directory for saving the output if it not exist
+        temp_dir = os.path.join(tts_dir, "temp")
+        make_dir(temp_dir)
+        tempfile = os.path.join(temp_dir, filename + ".mp3")
+        wavfile = os.path.join(tts_dir, filename + ".wav")
+
+        cmd = "rvtts --voice english_us_male --text \"" + text + "\" -o " + tempfile
+
+        os.system(cmd)
+        os.system('ffmpeg -i ' + tempfile +
+                  ' -acodec pcm_s16le -ac 1 -ar 16000 ' + wavfile + ' -y')
+
+        return os.path.relpath(wavfile, base_dir)
+```
+
+**Add the Class to the Pool**
+
+Add the new TTS to the TTS pool in the `examples/utils.py`
+```python
+def get_tts_pool() :
+    ttses = []
+    # add all of possibles TTS here
+    ttses.append(ResponsiveVoice())
+
+    return ttses
+```
+The function `get_tts_pool` will be called from the CrossASR++ main program
+
+
+### 5.1. Creating Wit ASR
+
+**Defining Class**
+
+```python
+from wit import Wit as WitAPI
+
+
+class Wit(ASR):
+    def __init__(self):
+        ASR.__init__(self, name="wit")
+        WIT_ACCESS_TOKEN = os.getenv("WIT_ACCESS_TOKEN")
+        self.wit_client = WitAPI(WIT_ACCESS_TOKEN)
+
+    def recognizeAudio(self, audio_path: str) -> str:
+        transcription = ""
+        with open(audio_path, 'rb') as audio:
+            try:
+                wit_transcription = self.wit_client.speech(
+                    audio, {'Content-Type': 'audio/wav'})
+                if wit_transcription != None:
+                    if "text" in wit_transcription:
+                        transcription = str(wit_transcription["text"])
+                    else:
+                        transcription = ""
+                else:
+                    transcription = ""
+            except Exception:
+                transcription = ""
+
+        self.setTranscription(transcription)
+        return transcription
+```
+
+**Add the Class to the Pool**
+
+Add the new ASR to the ASR pool in the `examples/utils.py`
+```python
+def get_asr_pool() :
+    asrs = []
+    # add all of possibles ASR here
+    asrs.append(Wit())
+
+    return asrs
+```
+The function `get_asr_pool` will be called from the CrossASR++ main program
+
+### 5.1. Creating ALBERT Estimator
+
+**Defining Class**
+```python
+class HuggingFaceTransformer(Estimator):
+    def __init__(self, name, max_sequence_length=128):
+        Estimator.__init__(self, name=name)
+
+        ## init boiler plate
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            name, num_labels=NUM_LABELS) ## init model
+        self.tokenizer = AutoTokenizer.from_pretrained(name) ## init tokenizer
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        self.max_sequence_length = max_sequence_length
+
+    def fit(self, X: [str], y: [int]):
+
+        self.model.to(self.device)
+        self.model.train()
+
+        train_texts = X
+        train_labels = y
+
+        train_encodings = self.tokenizer(
+            train_texts, truncation=True, padding=True, max_length=self.max_sequence_length)
+        train_dataset = HuggingFaceDataset(train_encodings, train_labels)
+
+        training_args = TrainingArguments(
+            output_dir='./results',          # output directory
+            num_train_epochs=1,              # total number of training epochs
+            per_device_train_batch_size=8,   # batch size per device during training
+            per_device_eval_batch_size=64,   # batch size for evaluation
+            learning_rate=5e-05,
+            weight_decay=0.01,               # strength of weight decay
+            logging_dir='./logs',            # directory for storing logs
+            logging_steps=10,
+        )
+
+        trainer = Trainer(
+            model=self.model,               # the instantiated 🤗 Transformers model to be trained
+            args=training_args,             # training arguments, defined above
+            train_dataset=train_dataset     # training dataset
+        )
+
+        trainer.train()
+
+    def predict(self, X: [str]):
+        self.model.eval()
+        test_texts = X
+        test_labels = [0] * len(X)
+        test_encodings = self.tokenizer(
+            test_texts, truncation=True, padding=True, max_length=self.max_sequence_length)
+        test_dataset = HuggingFaceDataset(test_encodings, test_labels)
+        test_loader = torch.utils.data.DataLoader(
+            test_dataset, batch_size=16, shuffle=False)
+
+        res = []
+        for batch in test_loader:
+            input_ids = batch['input_ids'].to(self.device)
+            attention_mask = batch['attention_mask'].to(self.device)
+            labels = batch['labels'].to(self.device)
+            outputs = self.model(
+                input_ids, attention_mask=attention_mask, labels=labels)
+            preds = softmax(outputs.logits.detach().cpu().numpy(), axis=1)
+            res.extend(preds)
+        res = np.array(res)
+        failed_probability = res[:, FAILED_TEST_CASE]
+        
+        return failed_probability
+
+```
+
+**Add the Class to the Pool**
+
+Add the new ASR to the ASR pool in the `examples/utils.py`
+```python
+def get_estimator_pool() :
+    estimators = []
+    # add all of possibles ASR here
+    estimators.append(HuggingFace("albert-base-v2"))
+
+    return estimators
+```
+The function `get_estimator_pool` will be called from the CrossASR++ main program. We can easily use another estimator from HuggingFace by replacing `albert-base-v2` into another model, e.g. `bert-base-uncased`. 
+
+
+## 5. Runnning CrossASR++ with the Same Setting with CrossASR
+
+The available TTS are ResponsiveVoice, Google, Espeak, and Festival. The available ASR are DeepSpeech, DeepSpeech2, Wav2Letter++, and Wit. The estimator used in CrossASR is ALBERT-base-v2.
+
+To run CrossASR++, we need to specify the TTS, ASRs, and estimator used in `config.json`. This is an example for the same setting used in CrossASR.
+```json
+{
+    ...
+    "tts" : "google",
+    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit"],
+    "estimator": "albert-base-v2",
+    ...
+}
+```
+
+To run the program, execute this command from the `examples` folder
+```bash
+python run_crossasr.py --config config.json
+``` 
+
+This program will generate test cases for all ASRs in the folder located in the `output_dir` specified in the `config.json`. In the `output_dir` there will be `data` folder to save the audio files and their transcriptions, `execution_time` folder to save the execution time for generating audio files and recognizing them, `cases` folder to save the cases status, i.e. failed test cases, succesfull test cases, and indeterminable test cases.
+
 ## 6. Usage Scenario for Testing a Specific ASR
-## 7. Usage Scenario for Developing Estimator
+
+Recently, researchers from AI community published a new transformer based ASR, Wav2Vec2. Here the step to add Wav2Vec2 into our pipeline
+
+Installing libraries needed Wav2Vec2
+```bash
+pip install torch
+pip install transformers
+```
+
+Defining Class
+```python
+class Wav2Vec2(ASR):
+    def __init__(self):
+        ASR.__init__(self, name="wav2vec2")
+        self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-large-960h")
+        self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
+            
+    def recognizeAudio(self, audio_path: str) -> str:
+        audio_input, _ = sf.read(audio_path) # load audio
+        input_values = tokenizer(audio_input, return_tensors="pt").input_values
+        logits = model(input_values).logits
+        predicted_ids = torch.argmax(logits, dim=-1)
+        transcription = self.tokenizer.batch_decode(predicted_ids)[0]
+        self.setTranscription(transcription)
+        return transcription
+```
+
+Add class to the ASR pool in the `examples/utils.py`
+```python
+def get_asr_pool() :
+    asrs = []
+    # add all of possibles ASR here
+    asrs.append(Wav2Vec2())
+
+    return asrs
+```
+
+Add the ASR unique name to the `config.json`. Set the `target_asr` with the name and set the `failed_test_case_output` with a folder location to save the failed test cases. The data saved are are the ground truth text and its audio where Wav2Vec2 wrongly transcribe the text. This data may be used to retrain the ASR model.
+```json
+{
+    ...
+    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
+    ...
+    "target_asr": "wav2vec2",
+    "failed_test_case_output": "wav2vec2_failed_test_cases"
+    ...
+}
+```
+
+Run the program
+```bash
+python run_crossasr.py --config config.json
+``` 
+
+## 7. Usage Scenario for Running Using another Estimator from HuggingFace
+
+Estimators from HuggingFace are customizable easily. We only need to change `estimator` in the `config.json` with another thousands models available at https://huggingface.co/models.
+```json
+{
+    ...
+    "estimator": "<any HuggingFace model>",
+    ...
+}
+
+
