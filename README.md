@@ -65,4 +65,4 @@ CrossASR++ automatically save the audio files and their transcriptions (along wi
 
 ## Real-world Examples
 
-We provide real examples for cross-referencing ASRs in folder [`examples`](). It provides clear instruction on how to create a real TTS, ASR, and Estimator and how to test a specific ASR.
+We provide real examples for cross-referencing ASRs in folder [`examples`](examples/README.md). It provides clear instruction on how to create a real TTS, ASR, and Estimator and how to test a specific ASR.
