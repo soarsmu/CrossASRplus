@@ -168,8 +168,7 @@ class CrossASR:
                 # asr.saveTranscription(transcription_fpath, transcription)
                 transcription = asr.recognizeAudio(audio_path=audio_fpath)
                 asr.setTranscription(transcription)
-                asr.saveTranscription(
-                    transcription_dir=transcription_dir, filename=filename)
+                asr.saveTranscription(transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
             
             transcription = asr.loadTranscription(
@@ -244,6 +243,7 @@ class CrossASR:
             processed_texts.extend(curr_texts[:i])
 
         
+        max_size = len(texts)
         processed_texts = []
         cases = []
         num_failed_test_cases = []
@@ -253,7 +253,9 @@ class CrossASR:
             num_failed_test_cases_per_asr[asr.getName()] = []
         
         for i in range(self.num_iteration): 
-            curr_texts = texts[i*self.text_batch_size:(i+1)*self.text_batch_size]
+            lower_bound = i*self.text_batch_size
+            upper_bound = min((i+1)*self.text_batch_size, max_size)
+            curr_texts = texts[lower_bound:upper_bound]
             processOneIteration(curr_texts, processed_texts, cases)
             num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
             for asr in self.asrs :
