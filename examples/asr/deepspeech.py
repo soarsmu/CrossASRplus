@@ -13,8 +13,6 @@ class DeepSpeech(ASR):
 
         transcription = out.decode("utf-8")[:-1]
         # print("DeepSpeech transcription: %s" % transcription)
-
-        self.setTranscription(transcription)
-
+        
         return transcription
 

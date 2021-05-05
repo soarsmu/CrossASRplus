@@ -16,5 +16,4 @@ class DeepSpeech2(ASR):
         transcription = transcription[:-1]
 
         # print("DeepSpeech2 transcription: %s" % transcription)
-        self.setTranscription(transcription)
         return transcription

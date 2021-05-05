@@ -166,7 +166,8 @@ class CrossASR:
                 # audio = asr.loadAudio(audio_path=audio_fpath)
                 # transcription = asr.recognizeAudio(audio=audio)
                 # asr.saveTranscription(transcription_fpath, transcription)
-                asr.recognizeAudio(audio_path=audio_fpath)
+                transcription = asr.recognizeAudio(audio_path=audio_fpath)
+                asr.setTranscription(transcription)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)

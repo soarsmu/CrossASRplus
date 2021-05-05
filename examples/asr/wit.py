@@ -28,6 +28,5 @@ class Wit(ASR):
                 # print("Could not request results from Wit.ai service; {0}".format(e))
                 transcription = ""
 
-        self.setTranscription(transcription)
         # print(f"Wit transcription: {transcription}")
         return transcription

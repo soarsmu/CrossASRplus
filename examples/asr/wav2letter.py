@@ -17,7 +17,6 @@ class Wav2Letter(ASR):
         transcription = self.concatWav2letterTranscription(out)
 
         # print(f"Wav2letter transcription: {transcription}")
-        self.setTranscription(transcription)
         return transcription
 
     def concatWav2letterTranscription(self, out):
