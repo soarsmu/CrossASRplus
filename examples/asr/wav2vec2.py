@@ -4,12 +4,18 @@ import soundfile as sf
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Tokenizer
 from crossasr.asr import ASR
 
+# tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-large-960h")
+# model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
+
+
 class Wav2Vec2(ASR):
     def __init__(self):
         ASR.__init__(self, name="wav2vec2")
         self.tokenizer = None
         self.model = None
-
+        # self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-large-960h")
+        # self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
+            
     def recognizeAudio(self, audio_path: str) -> str:
 
         # load pretrained model
