@@ -255,13 +255,16 @@ class CrossASR:
         for i in range(self.num_iteration): 
             lower_bound = i*self.text_batch_size
             upper_bound = min((i+1)*self.text_batch_size, max_size)
-            curr_texts = texts[lower_bound:upper_bound]
-            processOneIteration(curr_texts, processed_texts, cases)
-            num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
-            for asr in self.asrs :
-                num_failed_test_cases_per_asr[asr.getName()].append(calculate_cases_per_asr(
-                    cases, mode=FAILED_TEST_CASE, asr_name=asr.getName()))
-            num_processed_texts.append(len(processed_texts))
+            if lower_bound < upper_bound :
+                curr_texts = texts[lower_bound:upper_bound]
+                processOneIteration(curr_texts, processed_texts, cases)
+                num_failed_test_cases.append(calculate_cases(cases, mode=FAILED_TEST_CASE))
+                for asr in self.asrs :
+                    num_failed_test_cases_per_asr[asr.getName()].append(calculate_cases_per_asr(
+                        cases, mode=FAILED_TEST_CASE, asr_name=asr.getName()))
+                num_processed_texts.append(len(processed_texts))
+            else :
+                print("Texts is not enough")
 
         data = {}
         data["number_of_failed_test_cases_all"] = num_failed_test_cases
