@@ -22,6 +22,8 @@ class CrossASR:
         self.tts = tts
         self.asrs = asrs
         
+        self.output_dir = output_dir
+        
         self.audio_dir = os.path.join(output_dir, DATA_DIR, AUDIO_DIR) 
         self.transcription_dir = os.path.join(output_dir, DATA_DIR, TRANSCRIPTION_DIR)
         self.init_directory()
@@ -35,8 +37,6 @@ class CrossASR:
         self.max_num_retry = max_num_retry
         self.text_batch_size = text_batch_size
         self.estimator = estimator
-
-
         self.outputfile_failed_test_case = self.get_outputfile_for_failed_test_case()
         
     def init_directory(self) :
@@ -49,7 +49,7 @@ class CrossASR:
 
     def get_outputfile_for_failed_test_case(self) :
         asrs_dir = "_".join([asr.getName() for asr in self.asrs])
-        result_dir = os.path.join(self.output_dir, "result", self.tts.getName(), asrs_dir, f"text_batch_size_{self.text_batch_size}")
+        result_dir = os.path.join(self.output_dir, "result", self.tts.getName(), asrs_dir, f"num_iteration_{self.num_iteration}",f"text_batch_size_{self.text_batch_size}")
         make_dir(result_dir)
         experiment_name = f"with-estimator-{self.estimator.getName().replace('/','-')}" if self.estimator else "without-estimator"
         return os.path.join(result_dir, experiment_name)
@@ -161,6 +161,11 @@ class CrossASR:
 
             if self.recompute :
                 start_time = time.time()
+                # TODO:  
+                # change recognize audio -> input audio instead of fpath
+                # audio = asr.loadAudio(audio_path=audio_fpath)
+                # transcription = asr.recognizeAudio(audio=audio)
+                # asr.saveTranscription(transcription_fpath, transcription)
                 asr.recognizeAudio(audio_path=audio_fpath)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
