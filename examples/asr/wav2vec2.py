@@ -39,9 +39,7 @@ class Wav2Vec2(ASR):
         logits = self.model(input_values).logits
         predicted_ids = torch.argmax(logits, dim=-1)
         transcription = self.tokenizer.batch_decode(predicted_ids)[0]
-        # transcription = transcription.lower()
-        self.setTranscription(transcription)
-
+        
         del audio_input, input_values, logits, predicted_ids
         torch.cuda.empty_cache()
         gc.collect()
