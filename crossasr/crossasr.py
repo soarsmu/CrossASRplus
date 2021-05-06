@@ -18,9 +18,10 @@ from jiwer import wer
 
 
 class CrossASR:
-    def __init__(self, tts: TTS, asrs: [ASR], output_dir: str, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, text_batch_size=None, seed=None, estimator=None) :
+    def __init__(self, tts: TTS, asrs: [ASR], output_dir: "", target_asr=None, recompute=False, num_iteration=5, time_budget=3600, max_num_retry=0, text_batch_size=None, seed=None, estimator=None):
         self.tts = tts
         self.asrs = asrs
+        self.target_asr = target_asr
         
         self.output_dir = output_dir
         
@@ -62,7 +63,7 @@ class CrossASR:
                                 f"text_batch_size_{self.text_batch_size if self.text_batch_size else 'global' }")
         make_dir(result_dir)
         experiment_name = f"with-estimator-{self.estimator.getName().replace('/','-')}" if self.estimator else "without-estimator"
-        return os.path.join(result_dir, experiment_name)
+        return os.path.join(result_dir, experiment_name + ".json")
 
 
     def getTTS(self) :
@@ -130,6 +131,54 @@ class CrossASR:
         file = open(fpath, "w+")
         file.write(case)
         file.close()
+
+    def getCase(self, case_dir: str, tts_name: str, asr_name: str, filename: str):
+        case_dir = os.path.join(case_dir, tts_name, asr_name)
+        fpath = os.path.join(case_dir, filename + ".txt")
+        file = open(fpath, "r")
+        case = int(file.readlines()[0][0])
+        file.close()
+
+        return case
+
+
+    def printResult(self, text:str, filename:str) :
+        
+        print()
+        print(f"TTS: {self.tts.getName()}")
+        print(f"ASRs: {[asr.getName() for asr in self.asrs]}")
+        print()
+        print(f"Input text: {text}")
+        print()
+        print(f"Transcription:")
+        for asr in self.asrs :
+            transcription_dir = os.path.join(
+                self.transcription_dir, self.getTTS().getName())
+            transcription = asr.loadTranscription(
+                transcription_dir=transcription_dir, filename=filename)
+            print(f"\t {asr.getName()}: {preprocess_text(transcription)}")
+        print()
+        print(f"Cases: ")
+        for asr in self.asrs:
+            case = self.getCase(self.case_dir, self.tts.getName(), asr.getName(), filename)
+            if case == FAILED_TEST_CASE :
+                print(f"\t {asr.getName()}: failed test case")
+            elif case == SUCCESSFUL_TEST_CASE :
+                print(f"\t {asr.getName()}: successful test case")
+            else :
+                print(f"\t {asr.getName()}: indeterminable test case")
+        print()
+
+    def printStatistic(self) :
+        f = self.get_outputfile_for_failed_test_case()
+        data = crossasr.utils.read_json(f)
+        print()
+        print("Number of Failed Test Case Found")
+        for k, v in data["number_of_failed_test_cases_per_asr"].items() :
+            print(f"\t{k}: {v[-1]}")
+        print(f"\tTotal: {data['number_of_failed_test_cases_all'][-1]}")
+        print()
+
 
     def processText(self, text: str, filename: str) :
         """
@@ -223,7 +272,7 @@ class CrossASR:
     def processOneIteration(self, curr_texts: [Text], processed_texts: [Text], cases):
         start_time = time.time()
         curr_cases = []
-
+        
         if self.estimator and len(processed_texts) > 0:
             labels = get_labels_from_cases(cases)
             self.trainEstimator(processed_texts, labels)
@@ -254,13 +303,11 @@ class CrossASR:
         return curr_cases, curr_processed_texts, unprocessed_texts
 
     def processCorpus(self, texts: [Text]):
-        # """
-        # Run CrossASR on a corpus
-        # given a corpus, which is a list of sentences, the CrossASR generates test cases.
-        # There are 2 options, i.e. using FPP or without FPP
-        # return:
-        # """
-        # def processCorpus(self, text: [str], use_estimator: boolean, paremeters, FeatureExtractor, Classifier)
+        """
+        Run CrossASR on a corpus
+        given a corpus, which is a list of sentences, the CrossASR generates test cases.
+        :param texts: a list of tuple(sentence, id)
+        """
         
         remaining_texts = texts
         curr_texts = []
@@ -299,30 +346,48 @@ class CrossASR:
             else :
                 print("Texts are not enough!")
             
-            ### shuffle the remaining texts
+            # shuffle the remaining texts
             np.random.shuffle(remaining_texts)
         
         data = {}
         data["number_of_failed_test_cases_all"] = num_failed_test_cases
         data["number_of_failed_test_cases_per_asr"] = num_failed_test_cases_per_asr
         data["number_of_processed_texts"] = num_processed_texts
-        with open(self.outputfile_failed_test_case + ".json", 'w') as outfile:
+        with open(self.outputfile_failed_test_case, 'w') as outfile:
             json.dump(data, outfile, indent=2, sort_keys=True)
 
-        # print(len(processed_texts))
-        # print(num_failed_test_cases[-1])
-        # np.save(self.outputfile_failed_test_case, num_failed_test_cases)
+        if self.target_asr :
+            self.saveFailedTestCases(processed_texts, cases)
+    
+    def saveFailedTestCases(self, processed_texts, cases) :
+        failed_test_case_dir = os.path.join(self.output_dir, "failed_test_cases", self.tts.getName(), self.target_asr)
+        make_dir(failed_test_case_dir)
+        ids = self.get_id_only(processed_texts)
+        input_texts = self.get_text_only(processed_texts)
+        source_audio_dir = os.path.join(self.audio_dir, self.tts.getName())
+        for input_text, filename, case in zip(input_texts, ids, cases)  :
+            if case[self.target_asr] == FAILED_TEST_CASE :
+                src_audio_fpath = source_audio_dir + f"/{filename}.wav"
+                trgt_audio_fpath = failed_test_case_dir + f"/{filename}.wav"
+                os.system(f"cp {src_audio_fpath} {trgt_audio_fpath}")
+                ground_truth_file = failed_test_case_dir + f"/{filename}.txt"
+                f = open(ground_truth_file, 'w+')
+                f.write(input_text)
+                f.close()
 
-        ## TODO: 
-        # save raw output, 
-        # calculate the number of failed test cases in each iteration
-        # create visualisation
 
     def get_text_only(self, texts:[Text]) -> [str]:
         res = []
         for t in texts :
             res.append(t.getText()) 
         return res    
+
+
+    def get_id_only(self, texts: [Text]) -> [str]:
+        res = []
+        for t in texts:
+            res.append(t.getId())
+        return res
 
     
     def trainEstimator(self, processed_texts, labels):
