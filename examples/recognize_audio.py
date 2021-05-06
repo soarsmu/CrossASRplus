@@ -14,16 +14,18 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
     execution_time_dir = os.path.join(execution_time_dir, TRANSCRIPTION_DIR, tts_name, asr_name)
     make_dir(execution_time_dir)
 
-    # for i in range(885, 886):
-    # for i in range(0, 20001):
-    for i in range(0, 3):
+    # for i in range(800, 900):
+    for i in range(2937, 20001):
+    # for i in range(0, 3):
+    # for i in range(14240, 14241):
+    # for i in range(14240, 20001):
         filename = f"{i}"
 
         print(f"Processing {i}")
 
-        audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
+        audio_fpath = os.path.join(audio_dir, tts_name, filename + ".wav")
         start = time.time()
-        asr.recognizeAudio(audio_path=audio_path)
+        asr.recognizeAudio(audio_fpath=audio_fpath)
         asr.saveTranscription(
             transcription_dir=transcription_dir, filename=filename)
         end = time.time()
@@ -48,8 +50,8 @@ if __name__ == "__main__":
     data_dir = os.path.join(output_dir, DATA_DIR)
     execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
 
-    tts_name = config["tts"]
+    tts_name = "google"
     
     # for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
-    for asr_name in ["deepspeech2"]:
+    for asr_name in ["wav2vec2"]:
         recognize(tts_name, asr_name, data_dir, execution_time_dir)

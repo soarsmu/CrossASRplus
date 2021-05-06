@@ -29,12 +29,12 @@ def asr_test():
     tts_name = "google"
     filename = "hello_world"
 
-    audio_path = os.path.join(audio_dir, tts_name, filename + ".wav")
+    audio_fpath = os.path.join(audio_dir, tts_name, filename + ".wav")
     transcription_dir = os.path.join(transcription_dir, tts_name)
 
     for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
         asr = create_asr_by_name(asr_name)
-        asr.recognizeAudio(audio_path=audio_path)
+        asr.recognizeAudio(audio_fpath=audio_fpath)
         asr.saveTranscription(transcription_dir=transcription_dir, filename=filename)
 
 if __name__ == "__main__":

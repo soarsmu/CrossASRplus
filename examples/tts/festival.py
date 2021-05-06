@@ -1,7 +1,5 @@
-import os
 from crossasr.tts import TTS
-from crossasr.utils import make_dir
-
+import utils
 
 class Festival(TTS):
 
@@ -9,6 +7,4 @@ class Festival(TTS):
         TTS.__init__(self, name="festival")
 
     def generateAudio(self, text: str, audio_fpath: str):
-        cmd = "festival -b \"(utt.save.wave (SayText \\\"" + \
-            text + "\\\") \\\"" + audio_fpath + "\\\" 'riff)\""
-        os.system(cmd)
+        utils.festivalGenerateAudio(text=text, audio_fpath=audio_fpath)

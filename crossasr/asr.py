@@ -18,7 +18,7 @@ class ASR:
     def setTranscription(self, transcription: str):
         self.transcription = transcription
 
-    def recognizeAudio(self, audio_path: str) -> str:
+    def recognizeAudio(self, audio_fpath: str) -> str:
         # abstract function need to be implemented by the child class
         raise NotImplementedError()
     

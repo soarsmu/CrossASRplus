@@ -222,10 +222,10 @@ class CrossASR:
                 start_time = time.time()
                 # TODO:  
                 # change recognize audio -> input audio instead of fpath
-                # audio = asr.loadAudio(audio_path=audio_fpath)
+                # audio = asr.loadAudio(audio_fpath=audio_fpath)
                 # transcription = asr.recognizeAudio(audio=audio)
                 # asr.saveTranscription(transcription_fpath, transcription)
-                transcription = asr.recognizeAudio(audio_path=audio_fpath)
+                transcription = asr.recognizeAudio(audio_fpath=audio_fpath)
                 asr.setTranscription(transcription)
                 asr.saveTranscription(transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(fpath=time_for_recognizing_audio_fpath, execution_time=time.time() - start_time)
@@ -235,7 +235,7 @@ class CrossASR:
             num_retry = 0
             while transcription == "" and num_retry < self.max_num_retry :
                 start_time = time.time()
-                asr.recognizeAudio(audio_path=audio_fpath)
+                asr.recognizeAudio(audio_fpath=audio_fpath)
                 asr.saveTranscription(
                     transcription_dir=transcription_dir, filename=filename)
                 save_execution_time(
