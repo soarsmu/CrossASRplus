@@ -360,9 +360,9 @@ class Wit(ASR):
         WIT_ACCESS_TOKEN = os.getenv("WIT_ACCESS_TOKEN")
         self.wit_client = WitAPI(WIT_ACCESS_TOKEN)
 
-    def recognizeAudio(self, audio_path: str) -> str:
+    def recognizeAudio(self, audio_fpath: str) -> str:
         transcription = ""
-        with open(audio_path, 'rb') as audio:
+        with open(audio_fpath, 'rb') as audio:
             try:
                 wit_transcription = self.wit_client.speech(
                     audio, {'Content-Type': 'audio/wav'})
@@ -519,8 +519,8 @@ class Wav2Vec2(ASR):
         self.tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-large-960h")
         self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
             
-    def recognizeAudio(self, audio_path: str) -> str:
-        audio_input, _ = sf.read(audio_path) # load audio
+    def recognizeAudio(self, audio_fpath: str) -> str:
+        audio_input, _ = sf.read(audio_fpath) # load audio
         input_values = tokenizer(audio_input, return_tensors="pt").input_values
         logits = model(input_values).logits
         predicted_ids = torch.argmax(logits, dim=-1)
