@@ -14,7 +14,7 @@ setup(
     # I explain this later on
     download_url='https://github.com/user/reponame/archive/v_01.tar.gz',
     # Keywords that define your package best
-    keywords=['SOME', 'MEANINGFULL', 'KEYWORDS'],
+    keywords=['crossasr','differential testing', 'cross-referencing', 'ASR'],
     install_requires=[            # I get to this in a second
         'jiwer',
         'normalize'
