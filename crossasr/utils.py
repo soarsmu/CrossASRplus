@@ -4,8 +4,18 @@ import random
 import numpy as np
 import json
 from normalise import normalise, tokenize_basic
+import torch
 
 from crossasr.text import Text
+
+
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def make_dir(directory):
