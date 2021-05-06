@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name='crossasr',         # How you named your package folder (MyLib)
     packages=['crossasr'],   # Chose the same as "name"
-    version='0.1',      # Start with a small number and increase it with every change you make
+    version='0.1.1',      # Start with a small number and increase it with every change you make
     # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     license='MIT',
     # Give a short description about your library
@@ -12,7 +12,7 @@ setup(
     # Provide either the link to your github or to your website
     url='https://github.com/mhilmiasyrofi/CrossASRv2/',
     # I explain this later on
-    download_url='https://github.com/mhilmiasyrofi/CrossASRv2/archive/refs/tags/v0.2.1.tar.gz',
+    download_url='https://github.com/mhilmiasyrofi/CrossASRv2/archive/refs/tags/v0.1.1.tar.gz',
     # Keywords that define your package best
     keywords=['crossasr','differential testing', 'cross-referencing', 'ASR'],
     install_requires=[            # I get to this in a second
