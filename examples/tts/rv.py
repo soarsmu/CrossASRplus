@@ -1,7 +1,5 @@
 import os
 from crossasr.tts import TTS
-from crossasr.utils import make_dir
-
 
 class ResponsiveVoice(TTS):
 
