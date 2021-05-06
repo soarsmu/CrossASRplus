@@ -243,7 +243,7 @@ class CrossASR:
                 transcription = asr.loadTranscription(
                     transcription_dir=transcription_dir, filename=filename)
 
-                if asr.getName() == WIT :
+                if asr.getName() == "wit" :
                     random_number = float(random.randint(9, 47))/10.
                     time.sleep(random_number)
 
