@@ -27,18 +27,18 @@ To add a TTS, you need to create a class inherited from `TTS` interface. You mus
 ```python
 class TTS:
 
-  def __init__(self, name):
-    self.name = name
+    def __init__(self, name):
+        self.name = name
 
-  def generateAudio(self, text:str, audio_fpath: str):
-    """
-    Generate audio from text. Save the audio at audio_fpath. 
-    This is an abstract function that needs to be implemented by the child class
+    def generateAudio(self, text:str, audio_fpath: str):
+        """
+        Generate audio from text. Save the audio at audio_fpath. 
+        This is an abstract function that needs to be implemented by the child class
 
-    :param text: input text
-    :param audio_fpath: location to save the audio
-    """
-    raise NotImplementedError()
+        :param text: input text
+        :param audio_fpath: location to save the audio
+        """
+        raise NotImplementedError()
 ```
 
 ### 2. Adding an ASR
@@ -47,19 +47,19 @@ To add an ASR, you need to create a class inherited from `ASR` interface. You mu
 
 ```python
 class ASR:
+    
+    def __init__(self, name):
+        self.name = name
+    
+    def recognizeAudio(self, audio_fpath: str) -> str:
+        """
+        Recognize audio file. Return the transcription
+        This is an abstract function that needs to be implemented by the child class
 
-  def __init__(self, name):
-    self.name = name
-        
-  def recognizeAudio(self, audio_fpath: str) -> str:
-    """
-    Recognize audio file. Return the transcription
-    This is an abstract function that needs to be implemented by the child class
-
-    :param audio_fpath: location to load the audio
-    :return transcription: transcription from the audio
-    """
-    raise NotImplementedError()
+        :param audio_fpath: location to load the audio
+        :return transcription: transcription from the audio
+        """
+        raise NotImplementedError()
 ```
 
 ### 3. Adding an Estimator
@@ -67,14 +67,14 @@ class ASR:
 To add an Estimator, you need to create a class inherited from `Estimator` interface. You must override the function for training and predicting.
 ```python
 class Estimator:
-  def __init__(self, name:str):
-    self.name = name
+    def __init__(self, name:str):
+        self.name = name
 
-  def fit(self, X:[str], y:[int]):
-    raise NotImplementedError()
+    def fit(self, X:[str], y:[int]):
+        raise NotImplementedError()
 
-  def predict(self, X:[str]):
-    raise NotImplementedError()
+    def predict(self, X:[str]):
+        raise NotImplementedError()
 
 ```
 
