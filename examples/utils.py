@@ -43,8 +43,7 @@ def getTTS(tts_name: str):
     for tts in tts_pool :
         if tts_name == tts.getName() :
             return tts
-    raise NotImplementedError("There is a TTS name problem")
-
+    raise NotImplementedError("There is a TTS name problem")    
 
 def getASRS(asr_names: [str]):
     asrs = []
@@ -55,6 +54,9 @@ def getASRS(asr_names: [str]):
     if len(asr_names) == len(asrs) :
         return asrs
     raise NotImplementedError("There is an ASR name problem")
+
+def getEstimator(name: str):
+    return HuggingFaceTransformer(name=name)
 
 def set_seed(seed: int) :
     random.seed(seed)
@@ -83,7 +85,7 @@ def readCorpus(corpus_fpath: str) :
 def parseConfig(config):
     conf = {}
     for k,v in config.items() :
-        if k != "tts" and k!= "asrs" and k != "corpus_fpath":
+        if k != "tts" and k!= "asrs" and k != "corpus_fpath" and k != "estimator":
             conf[k] = v
     return conf
 
