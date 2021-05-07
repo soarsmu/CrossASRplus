@@ -1,0 +1,5 @@
+{
+    "output_dir": "output/trial/",
+    "tts" : "rv",
+    "asrs" : ["wav2vec2", "deepspeech2", "wav2letter", "wit"]
+}
