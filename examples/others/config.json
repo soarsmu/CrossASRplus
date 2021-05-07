@@ -3,7 +3,7 @@
     "output_dir": "output/europarl-seed2021/",
     "corpus_fpath": "corpus/europarl-20000.txt",
     "tts" : "rv",
-    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit"],
+    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
     "preprocessing" : {
         "remove_hex" : true,
         "remove_punctuation": true,
@@ -14,8 +14,5 @@
     "time_budget": 3600,
     "num_iteration": 5,
     "text_batch_size": 1200,
-    "max_num_retry": 0,
-    "estimator": "albert-base-v2",
-    "estimator_type": "huggingface",
-    "estimator_config": "albert.json"
+    "estimator": "facebook/bart-base"
 }
