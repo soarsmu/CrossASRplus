@@ -92,7 +92,7 @@ class Estimator:
 
 To make CrossASR++ a plug-and-play tool, we have incorporated some latest components. The suppported TTSes are [Google Translate’s TTS](https://pypi.org/project/gTTS/), [ResponsiveVoice](https://pypi.org/project/rvtts/), [Festival](https://www.cstr.ed.ac.uk/projects/festival/), and [Espeak](http://espeak.sourceforge.net). The supported ASRs are [DeepSpeech](https://pypi.org/project/deepspeech/), [DeepSpeech2](https://github.com/PaddlePaddle/DeepSpeech), [Wit](https://wit.ai), and [wav2letter++](https://github.com/flashlight/wav2letter). CrossASR++ supports any transformed-based classifier available at [HuggingFace](https://huggingface.co). CrossASR++ can also be easily extended to leverage more advanced tools in the future.
 
-We provide real examples for cross-referencing ASR systems in folder [`examples`](examples/README.md). It provides clear instruction on how to create the suppported TTS, ASR, and Estimator and how to test a specific ASR system.
+We provide real examples for cross-referencing ASR systems in folder [`examples`](https://github.com/soarsmu/CrossASRplus/tree/main/examples). It provides clear instruction on how to create the suppported TTS, ASR, and Estimator and how to test a specific ASR system.
 
 ### Automatically Save Data
 
