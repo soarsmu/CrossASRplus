@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, Extension
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -10,7 +10,7 @@ setup(
     # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     license='MIT',
     # Give a short description about your library
-    description='CrossASR++: A Modular Differential Testing Framework for Automatic Speech Recognition',
+    description='CrossASR++ A Modular Differential Testing Framework for Automatic Speech Recognition',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Muhammad Hilmi Asyrofi',                   # Type in your name
