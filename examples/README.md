@@ -1,6 +1,6 @@
 # Usage Example of CrossASR++
 
-This documention contain several main parts, i.e.:
+This documentation contains step-by-step walk through of our tool
 
 1. [Prepare Environment](##1-prepare-environment)
 2. [Prepare TTSes](##2-prepare-ttses)
@@ -10,6 +10,7 @@ This documention contain several main parts, i.e.:
 6. [Runnning CrossASR++ with the Same Setting with CrossASR](##6-runnning-crossasr++-with-the-same-setting-with-crossasr)
 7. [Usage Scenario for Testing a Specific ASR](##7-usage-scenario-for-testing-a-specific-asr)
 8. [Usage Scenario for Running Using another Estimator from HuggingFace](##8-usage-scenario-for-running-using-another-estimator-from-huggingface)
+9. [Download Experiment Data from CrossASR++](##9-download-experiment-data-from-crossasr++)
 
 ## 1. Prepare Environment
 
@@ -307,91 +308,47 @@ pip install transformers
 ### 5.1. Creating ResponsiveVoice TTS
 User can add a new TTS by defining a class derived from `TTS` interface. The steps for 
 
-**Defining Class**
+**Defining a class derived from TTS interface**
 ```python
 class ResponsiveVoice(TTS):
 
-    def __init__(self):
-        TTS.__init__(self, name="rv")
+    def __init__(self, name="rv"):
+        TTS.__init__(self, name=name)
 
-    def generateAudio(self, text: str, audio_dir: str, filename: str) -> str:
-        base_dir = os.getcwd()
-        tts_dir = os.path.join(base_dir, audio_dir, self.name)
-        make_dir(tts_dir) # make a directory for saving the output if it not exist
-        temp_dir = os.path.join(tts_dir, "temp")
-        make_dir(temp_dir)
-        tempfile = os.path.join(temp_dir, filename + ".mp3")
-        wavfile = os.path.join(tts_dir, filename + ".wav")
-
-        cmd = "rvtts --voice english_us_male --text \"" + text + "\" -o " + tempfile
-
-        os.system(cmd)
-        os.system('ffmpeg -i ' + tempfile +
-                  ' -acodec pcm_s16le -ac 1 -ar 16000 ' + wavfile + ' -y')
-
-        return os.path.relpath(wavfile, base_dir)
+    def generateAudio(self, text: str, audio_fpath: str) -> str:
+        utils.rvGenerateAudio(text, audioa_fpath)
 ```
 
 **Add the Class to the Pool**
 
-Add the new TTS to the TTS pool in the `examples/utils.py`
+Add the new TTS to the TTS pool in the `examples/pool.py`
 ```python
-def get_tts_pool() :
-    ttses = []
-    # add all of possibles TTS here
-    ttses.append(ResponsiveVoice())
-
-    return ttses
+tts_pool = [Google(), Espeak(), Festival(), ResponsiveVoice()]
 ```
-The function `get_tts_pool` will be called from the CrossASR++ main program
+The function `getTTS` in the `examples/utils.py` will be called from the CrossASR++ main program 
 
 
 ### 5.1. Creating Wit ASR
 
-**Defining Class**
+**Defining a class derived from ASR interface**
 
 ```python
-from wit import Wit as WitAPI
-
-
 class Wit(ASR):
-    def __init__(self):
-        ASR.__init__(self, name="wit")
-        WIT_ACCESS_TOKEN = os.getenv("WIT_ACCESS_TOKEN")
-        self.wit_client = WitAPI(WIT_ACCESS_TOKEN)
-
+    def __init__(self, name="wit"):
+        ASR.__init__(self, name=name)
+        
     def recognizeAudio(self, audio_fpath: str) -> str:
-        transcription = ""
-        with open(audio_fpath, 'rb') as audio:
-            try:
-                wit_transcription = self.wit_client.speech(
-                    audio, {'Content-Type': 'audio/wav'})
-                if wit_transcription != None:
-                    if "text" in wit_transcription:
-                        transcription = str(wit_transcription["text"])
-                    else:
-                        transcription = ""
-                else:
-                    transcription = ""
-            except Exception:
-                transcription = ""
-
-        self.setTranscription(transcription)
+        transcription = utils.witRecognizeAudio(audio_fpath)
         return transcription
 ```
 
 **Add the Class to the Pool**
 
-Add the new ASR to the ASR pool in the `examples/utils.py`
+Add the new ASR to the ASR pool in the `examples/pool.py`
 ```python
-def get_asr_pool() :
-    asrs = []
-    # add all of possibles ASR here
-    asrs.append(Wit())
-
-    return asrs
+asr_pool = [Wav2Vec2(), DeepSpeech(), DeepSpeech2(), Wav2Letter(), Wit()]
 ```
-The function `get_asr_pool` will be called from the CrossASR++ main program
+The function `getASR` in the `examples/utils.py` will be called from the CrossASR++ main program
 
 ### 5.1. Creating ALBERT Estimator
 
@@ -467,16 +424,12 @@ class HuggingFaceTransformer(Estimator):
 
 **Add the Class to the Pool**
 
-Add the new ASR to the ASR pool in the `examples/utils.py`
+Override `getEstimator` function in the `examples/utils.py`
 ```python
-def get_estimator_pool() :
-    estimators = []
-    # add all of possibles ASR here
-    estimators.append(HuggingFace("albert-base-v2"))
-
-    return estimators
+def getEstimator(name: str):
+    return HuggingFaceTransformer(name=name)
 ```
-The function `get_estimator_pool` will be called from the CrossASR++ main program. We can easily use another estimator from HuggingFace by replacing `albert-base-v2` into another model, e.g. `bert-base-uncased`. 
+The function `getEstimator` will be called from the CrossASR++ main program. We can easily use another estimator from HuggingFace by replacing `albert-base-v2` into another model, e.g. `bert-base-uncased`. 
 
 
 ## 6. Runnning CrossASR++ with the Same Setting with CrossASR
@@ -496,10 +449,19 @@ To run CrossASR++, we need to specify the TTS, ASRs, and estimator used in `conf
 
 To run the program, execute this command from the `examples` folder
 ```bash
-python run_crossasr.py --config config.json
+python run_crossasr.py config.json
 ``` 
 
 This program will generate test cases for all ASRs in the folder located in the `output_dir` specified in the `config.json`. In the `output_dir` there will be `data` folder to save the audio files and their transcriptions, `execution_time` folder to save the execution time for generating audio files and recognizing them, `cases` folder to save the cases status, i.e. failed test cases, succesfull test cases, and indeterminable test cases.
+
+## 7. Usage Scenario for Running using a Text
+
+This program will do cross-referencing using a piece of text. This function is helpful to check the functionaility of each component in CrossASR++.
+
+Run the program
+```bash
+python cross_reference.py config_text.json
+``` 
 
 ## 7. Usage Scenario for Testing a Specific ASR
 
@@ -539,21 +501,20 @@ def get_asr_pool() :
     return asrs
 ```
 
-Add the ASR unique name to the `config.json`. Set the `target_asr` with the name and set the `failed_test_case_output` with a folder location to save the failed test cases. The data saved are are the ground truth text and its audio where Wav2Vec2 wrongly transcribe the text. This data may be used to retrain the ASR model.
+Add the ASR unique name to the `config.json`. Set the `target_asr` with the target ASR name. The data saved are are the ground truth text and its audio where Wav2Vec2 wrongly transcribe the text. The data is saved at `failed_test_cases` dir inside `output_dir` specified at `config.json`. The data may be used to retrain the ASR model.
 ```json
 {
     ...
     "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
     ...
     "target_asr": "wav2vec2",
-    "failed_test_case_output": "wav2vec2_failed_test_cases"
     ...
 }
 ```
 
 Run the program
 ```bash
-python run_crossasr.py --config config.json
+python test_asr.py config_corpus.json
 ``` 
 
 ## 8. Usage Scenario for Running Using another Estimator from HuggingFace
@@ -565,5 +526,9 @@ Estimators from HuggingFace are customizable easily. We only need to change `est
     "estimator": "<any HuggingFace model>",
     ...
 }
+```
 
+## 9. Download Experiment Data from CrossASR++
+
+We provide our experiment data to support the community doing experiment in CrossASR++ faster. Please download the data at this [GDrive Link](https://drive.google.com/drive/folders/1_6YYDaZ03EZFUf-k6EXU-DkLNR_WMmjj?usp=sharing)
 
