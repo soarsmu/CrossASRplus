@@ -6,6 +6,8 @@ So in this accompanying tool, we devote more engineering and propose **CrossASR+
 
 Please check our Tool Demo Video at [https://www.youtube.com/watch?v=ddRk-f0QV-g](https://www.youtube.com/watch?v=ddRk-f0QV-g)
 
+PDF preprint is [available](https://arxiv.org/pdf/2105.14881.pdf)
+
 ## Installation
 
 ### 1. PyPI installation
@@ -102,6 +104,14 @@ CrossASR++ automatically save the audio files and their transcriptions (along wi
 ### Please cite our work!
 
 ```
+@INPROCEEDINGS{Asyrofi2021CrossASRplus,  
+    author={M. H. {Asyrofi} and Z. {Yang} and D. {Lo}},  
+    booktitle={Proceedings of the 29th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE '21), August 23--28, 2021, Athens, Greece},
+    title={CrossASR++: : A Modular Differential Testing Framework for Automatic Speech Recognition},   
+    year={2021},  volume={},  number={},  
+    pages={},  
+    doi={10.1145/3468264.3473124}}
+    
 @INPROCEEDINGS{Asyrofi2020CrossASR,  
     author={M. H. {Asyrofi} and F. {Thung} and D. {Lo} and L. {Jiang}},  
     booktitle={2020 IEEE International Conference on Software Maintenance and Evolution (ICSME)},
@@ -109,6 +119,7 @@ CrossASR++ automatically save the audio files and their transcriptions (along wi
     year={2020},  volume={},  number={},  
     pages={640-650},  
     doi={10.1109/ICSME46990.2020.00066}}
+    
 ```
 
 
