@@ -6,7 +6,7 @@ So in this accompanying tool, we devote more engineering and propose **CrossASR+
 
 Please check our Tool Demo Video at [https://www.youtube.com/watch?v=ddRk-f0QV-g](https://www.youtube.com/watch?v=ddRk-f0QV-g)
 
-PDF preprint is [available](https://arxiv.org/pdf/2105.14881.pdf)
+PDF preprint is [available](https://mhilmiasyrofi.github.io/papers/CrossASRv2.pdf)
 
 ## Installation
 
