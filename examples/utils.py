@@ -45,7 +45,15 @@ def getTTS(tts_name: str):
             return tts
     raise NotImplementedError("There is a TTS name problem")    
 
-def getASRS(asr_names: [str]):
+
+def getASR(asr_name: str):
+    for asr in asr_pool:
+        if asr_name == asr.getName():
+            return asr
+    raise NotImplementedError("There is a ASR name problem")
+
+
+def getASRS(asr_names):
     asrs = []
     for asr in asr_pool:
         for asr_name in asr_names :
@@ -207,5 +215,12 @@ def witRecognizeAudio(audio_fpath):
 def create_huggingface_estimator_by_name(name: str):
     # https://huggingface.co/transformers/custom_datasets.html
     return HuggingFaceTransformer(name=name)
+
+def create_tts_by_name(name: str):
+    return getTTS(name)
+
+
+def create_asr_by_name(name: str):
+    return getASR(name)
 
 
