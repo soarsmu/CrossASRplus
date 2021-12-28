@@ -1,0 +1,12 @@
+{
+    "seed": 2021,
+    "output_dir": "output/librispeech-crossasr-test-other/",
+    "corpus_fpath": "corpus/librispeech-test-other-corpus.txt",
+    "tts" : "google",
+    "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
+    "recompute": false,
+    "time_budget": 3600,
+    "num_iteration": 5,
+    "text_batch_size": 1200,
+    "estimator": "facebook/bart-base"
+}
