@@ -17,6 +17,8 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
     make_dir(execution_time_dir)
 
     corpus = read_corpus(corpus_fpath=corpus_path)
+    print(f"Corpus file path: {corpus_path}")
+    print(f"Length: {len(corpus)}")
 
     for i in range(0, len(corpus)) :
         c = corpus[i]
@@ -37,7 +39,7 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
                 time.sleep(random_number)
 
 if __name__ == "__main__" :
-    json_config_path = "config-dev-clean.json"
+    json_config_path = "config-test-other.json"
     config = read_json(json_config_path)
 
     set_seed(config["seed"])
