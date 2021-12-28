@@ -39,16 +39,22 @@ def generate(tts_name: str, corpus_path: str, data_dir: str, execution_time_dir:
                 time.sleep(random_number)
 
 if __name__ == "__main__" :
-    json_config_path = "config-test-other.json"
-    config = read_json(json_config_path)
 
-    set_seed(config["seed"])
+    for json_config_path in ["config-test-clean.json",
+                             "config-test-other.json",
+                             "config-dev-clean.json",
+                             "config-dev-other.json"] :
+        
+        
+        config = read_json(json_config_path)
 
-    corpus_path = os.path.join(config["output_dir"], config["corpus_fpath"])
-    output_dir = config["output_dir"]
-    data_dir = os.path.join(output_dir, DATA_DIR)
-    execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
+        set_seed(config["seed"])
 
-    tts_name = config["tts"]
-    generate(tts_name, corpus_path, data_dir, execution_time_dir)
+        corpus_path = os.path.join(config["output_dir"], config["corpus_fpath"])
+        output_dir = config["output_dir"]
+        data_dir = os.path.join(output_dir, DATA_DIR)
+        execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
+
+        tts_name = config["tts"]
+        generate(tts_name, corpus_path, data_dir, execution_time_dir)
 
