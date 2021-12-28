@@ -2,7 +2,7 @@
     "seed": 2021,
     "output_dir": "output/librispeech-crossasr-test-other/",
     "corpus_fpath": "corpus/librispeech-test-other-corpus.txt",
-    "tts" : "google",
+    "tts" : "mac",
     "asrs" : ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"],
     "recompute": false,
     "time_budget": 3600,
