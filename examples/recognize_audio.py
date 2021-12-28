@@ -18,11 +18,22 @@ def is_empty_file(fpath:str) -> bool:
     return False
 
 
-def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: str):
+def recognize(tts_name: str, asr_name: str, output_dir: str):
+    
+    data_dir = os.path.join(output_dir, DATA_DIR)
+    
     asr = create_asr_by_name(asr_name)
     audio_dir = os.path.join(data_dir, AUDIO_DIR, tts_name)
     transcription_dir = os.path.join(data_dir, TRANSCRIPTION_DIR, tts_name)
-    execution_time_dir = os.path.join(execution_time_dir, TRANSCRIPTION_DIR, tts_name, asr_name)
+    execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR, TRANSCRIPTION_DIR, tts_name, asr_name)
+    
+    if tts_name == "mac" :
+        tts_voice = "Alex"
+        audio_dir = os.path.join(audio_dir, tts_voice)
+        transcription_dir = os.path.join(data_dir, TRANSCRIPTION_DIR, tts_name, tts_voice)
+        execution_time_dir = os.path.join(
+        output_dir, EXECUTION_TIME_DIR, TRANSCRIPTION_DIR, tts_name, tts_voice, asr_name)
+
     make_dir(execution_time_dir)
     make_dir(os.path.join(transcription_dir, asr.getName()))
 
@@ -38,7 +49,7 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
             transcription_dir, asr.getName(),  filename + ".txt")
 
         if (not os.path.exists(transcription_fpath)) or is_empty_file(transcription_fpath) :
-
+            
             start = time.time()
             transcription = asr.recognizeAudio(audio_fpath=audio_fpath)
             asr.setTranscription(transcription)
@@ -59,8 +70,8 @@ if __name__ == "__main__":
     
     # json_config_path = "config-test-clean.json"
     # json_config_path = "config-test-other.json"
-    # json_config_path = "config-dev-clean.json"
-    json_config_path = "config-dev-other.json"
+    json_config_path = "config-dev-clean.json"
+    # json_config_path = "config-dev-other.json"
     
     # json_config_path = "config.json"
     config = read_json(json_config_path)
@@ -69,16 +80,13 @@ if __name__ == "__main__":
 
     corpus_path = os.path.join(config["output_dir"], config["corpus_fpath"])
     output_dir = config["output_dir"]
-    data_dir = os.path.join(output_dir, DATA_DIR)
-    execution_time_dir = os.path.join(output_dir, EXECUTION_TIME_DIR)
-
     # tts_name = "google"
     
     tts_name = config["tts"]
-    asr_name = "deepspeech"
+    asr_name = "wav2vec2"
 
     
-    recognize(tts_name, asr_name, data_dir, execution_time_dir)
+    recognize(tts_name, asr_name, output_dir)
 
     # for asr_name in ["deepspeech", "deepspeech2", "wav2letter", "wit", "wav2vec2"] :
     # for asr_name in ["wav2vec2"]:
