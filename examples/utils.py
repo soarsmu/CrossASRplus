@@ -98,14 +98,20 @@ def googleGenerateAudio(text, audio_fpath):
 
 
 def macGenerateAudio(text:str, audio_fpath:str, voice:str):
-    tempfile = audio_fpath.split(".")[0] + "-temp.aiff"
+    fpath = audio_fpath.split(".")[0]
+    dir = "/".join(fpath.split("/")[:-1]) + f"/{voice}/"
+    id =  fpath.split("/")[-1]
+    os.makedirs(dir, exist_ok=True)
+    
+    temp_fpath = dir + f"{id}-temp.aiff"
+    audio_fpath = dir + f"{id}.wav"
 
     ## generate aiff audio from mac tts
-    os.system(f"say -v {voice} -o {tempfile} \"{text}\"")
+    os.system(f"say -v {voice} -o {temp_fpath} \"{text}\"")
 
     ## convert aiff into flac
     setting = " -acodec pcm_s16le -ac 1 -ar 16000 "
-    os.system(f"ffmpeg -i {tempfile} {setting} {audio_fpath} -y")
+    os.system(f"ffmpeg -i {temp_fpath} {setting} {audio_fpath} -y")
 
 
 
