@@ -83,7 +83,7 @@ def preprocess_text(text):
         #       process is not deterministic
         text = normalize_text(text)
     except :
-        text = ""
+        text = text
     # need to remove punctuation again as normalise sometimes add punctuation
     text = remove_punctuation(text)
     text = text.lower()
