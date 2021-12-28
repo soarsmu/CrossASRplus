@@ -7,11 +7,6 @@ import torch
 import soundfile as sf
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Tokenizer
 
-
-import soundfile as sf
-import torch
-
-
 from gtts import gTTS
 
 from tts.rv import ResponsiveVoice
@@ -34,10 +29,6 @@ from wit import Wit as WitAPI
 
 WIT_ACCESS_TOKEN = os.getenv("WIT_ACCESS_TOKEN")
 wit_client = WitAPI(WIT_ACCESS_TOKEN)
-
-tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-base-960h")
-model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
-
 
 def getTTS(tts_name: str):
     for tts in tts_pool :
@@ -104,6 +95,19 @@ def googleGenerateAudio(text, audio_fpath):
     googleTTS.save(tempfile)
     setting = " -acodec pcm_s16le -ac 1 -ar 16000 "
     os.system(f"ffmpeg -i {tempfile} {setting} {audio_fpath} -y")
+
+
+def macGenerateAudio(text:str, audio_fpath:str, voice:str):
+    tempfile = audio_fpath.split(".")[0] + "-temp.aiff"
+
+    ## generate aiff audio from mac tts
+    os.system(f"say -v {voice} -o {tempfile} \"{text}\"")
+
+    ## convert aiff into flac
+    setting = " -acodec pcm_s16le -ac 1 -ar 16000 "
+    os.system(f"ffmpeg -i {tempfile} {setting} {audio_fpath} -y")
+
+
 
 def rvGenerateAudio(text, audio_fpath):
     tempfile = audio_fpath.split(".")[0] + "-temp.mp3"
@@ -178,6 +182,10 @@ def concatWav2letterTranscription(out):
 
 def wav2vec2RecognizeAudio(audio_fpath) :
     audio_input, _ = sf.read(audio_fpath)
+
+    tokenizer = Wav2Vec2Tokenizer.from_pretrained("facebook/wav2vec2-base-960h")
+    model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+
 
     # transcribe
     input_values = tokenizer(
