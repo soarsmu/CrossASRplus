@@ -106,12 +106,15 @@ def macGenerateAudio(text:str, audio_fpath:str, voice:str):
     temp_fpath = dir + f"{id}-temp.aiff"
     audio_fpath = dir + f"{id}.wav"
 
-    ## generate aiff audio from mac tts
-    os.system(f"say -v {voice} -o {temp_fpath} \"{text}\"")
+    if not os.path.exists(temp_fpath) :
 
-    ## convert aiff into flac
-    setting = " -acodec pcm_s16le -ac 1 -ar 16000 "
-    os.system(f"ffmpeg -i {temp_fpath} {setting} {audio_fpath} -y")
+        ## generate aiff audio from mac tts
+        os.system(f"say -v {voice} -o {temp_fpath} \"{text}\"")
+
+    if not os.path.exists(audio_fpath) :
+        ## convert aiff into flac
+        setting = " -acodec pcm_s16le -ac 1 -ar 16000 "
+        os.system(f"ffmpeg -i {temp_fpath} {setting} {audio_fpath} -y")
 
 
 
