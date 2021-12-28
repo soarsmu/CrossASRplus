@@ -109,7 +109,7 @@ def get_execution_time(fpath:str) :
     return float(val)
 
 
-def read_corpus(self, corpus_fpath: str):
+def read_corpus(corpus_fpath: str):
     file = open(corpus_fpath)
     corpus = file.readlines()
     texts = []
