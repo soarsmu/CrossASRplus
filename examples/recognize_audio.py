@@ -26,7 +26,7 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
     make_dir(execution_time_dir)
     make_dir(os.path.join(transcription_dir, asr.getName()))
 
-    for i in range(0, 2620):
+    for i in range(0, 2940):
         filename = f"{i}"
 
         print(f"Processing {i}")
@@ -37,7 +37,7 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
         transcription_fpath = os.path.join(
             transcription_dir, asr.getName(),  filename + ".txt")
 
-        if is_empty_file(transcription_fpath) :
+        if (not os.path.exists(transcription_fpath)) or is_empty_file(transcription_fpath) :
 
             start = time.time()
             transcription = asr.recognizeAudio(audio_fpath=audio_fpath)
@@ -57,7 +57,11 @@ def recognize(tts_name: str, asr_name: str, data_dir: str, execution_time_dir: s
 
 if __name__ == "__main__":
     
+    # json_config_path = "config-test-clean.json"
+    # json_config_path = "config-test-other.json"
+    # json_config_path = "config-dev-clean.json"
     json_config_path = "config-dev-other.json"
+    
     # json_config_path = "config.json"
     config = read_json(json_config_path)
 
